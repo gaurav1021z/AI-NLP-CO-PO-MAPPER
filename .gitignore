@@ -1,0 +1,42 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+deploy_test/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Runtime uploads
+project_final/backend/uploads/
+project_final/backend/temp/
+project_final/backend/tmp/
+
+# Logs
+*.log
+
+# Node
+node_modules/
+frontend/node_modules/
+project_final/frontend/node_modules/
+project_final/frontend/frontend-app/node_modules/
+
+# Build
+dist/
+build/
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

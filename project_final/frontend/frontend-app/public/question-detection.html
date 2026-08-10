@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>COPOlytics - Question CO Detection</title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script>
+window.MathJax = {
+  tex: {inlineMath: [["\\(", "\\)"], ["$", "$"]], displayMath: [["\\[", "\\]"], ["$$", "$$"]]},
+  svg: {fontCache: "global"}
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<style>
+body{margin:0;font-family:Segoe UI;background:#f4f6f9;color:#142033;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:230px;background:white;height:100vh;padding:20px;box-shadow:2px 0px 10px rgba(0,0,0,0.08);}
+.profile{text-align:center;margin-bottom:30px;}
+.avatar{width:90px;height:90px;border-radius:50%;background:#cbd5e1;margin:auto;}
+.sidebar ul{list-style:none;padding:0;margin-top:20px;}
+.sidebar li{padding:12px;margin:6px 0;cursor:pointer;border-radius:8px;}
+.sidebar li:hover{background:#f1f5f9;}
+.active{background:#5abf71;color:white;font-weight:600;}
+.logout{margin-top:20px;background:#e74c3c;color:white;border:none;width:100%;padding:12px;border-radius:8px;cursor:pointer;}
+.main{flex:1;padding:40px;}
+.page-head{background:white;padding:26px 30px;border-radius:18px;box-shadow:0 8px 24px rgba(15,23,42,0.05);margin-bottom:20px;}
+.page-head h2{margin:0 0 8px;font-size:34px;}
+.page-head p{margin:0;color:#5b677a;line-height:1.6;}
+.card{background:white;padding:30px;border-radius:18px;box-shadow:0 10px 28px rgba(15,23,42,0.06);border:1px solid #e7edf6;}
+.card > h2{display:none;}
+.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
+.section-head h3{margin:0 0 8px;font-size:26px;}
+.section-head p{margin:0;color:#5b677a;line-height:1.6;}
+.mode-switch{display:flex;gap:10px;flex-wrap:wrap;}
+.mode-chip{border:1px solid #cfd8e3;background:#f8fbff;color:#20324d;padding:10px 16px;border-radius:999px;cursor:pointer;font-weight:700;transition:all 0.2s ease;}
+.mode-chip.active{background:#e8f1ff;border-color:#3b82f6;color:#1d4ed8;box-shadow:0 0 0 3px rgba(59,130,246,0.12);}
+.form-grid{display:grid;grid-template-columns: repeat(4,1fr);gap:16px;margin-bottom:20px;}
+.field-box{display:flex;flex-direction:column;gap:8px;}
+select, textarea, input{
+width:100%;
+padding:13px 14px;
+border-radius:14px;
+border:1px solid #cfd8e3;
+background:#fbfdff;
+font-size:15px;
+box-sizing:border-box;
+transition:border-color 0.2s ease, box-shadow 0.2s ease;
+}
+select:focus, textarea:focus, input:focus{
+outline:none;
+border-color:#3b82f6;
+box-shadow:0 0 0 4px rgba(59,130,246,0.12);
+background:white;
+}
+textarea{height:200px;resize:vertical;line-height:1.7;}
+textarea, input, .question-cell, .paper-table td.question-cell{
+font-family:"Segoe UI","Cambria Math","Nirmala UI","Segoe UI Symbol",sans-serif;
+}
+button{
+padding:13px 20px;
+background:linear-gradient(135deg,#2563eb 0%, #1d4ed8 100%);
+color:white;
+border:none;
+border-radius:14px;
+cursor:pointer;
+font-weight:700;
+font-size:15px;
+box-shadow:0 12px 24px rgba(37,99,235,0.18);
+}
+.button-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;}
+.secondary-btn{background:#0f766e;box-shadow:0 12px 24px rgba(15,118,110,0.18);}
+.ghost-btn{background:#eef5ff;color:#1d4ed8;box-shadow:none;border:1px solid #c8dafc;}
+.subtle-btn{background:#f8fafc;color:#1e293b;box-shadow:none;border:1px solid #d7e0ea;}
+table{width:100%;margin-top:22px;border-collapse:collapse;background:white;border-radius:16px;overflow:hidden;}
+th,td{border:1px solid #e2e8f0;padding:12px;text-align:left;}
+th{background:#0f172a;color:white;}
+label{display:block;font-size:13px;font-weight:700;color:#24344d;text-transform:uppercase;letter-spacing:0.03em;}
+.helper{margin-bottom:18px;padding:14px 16px;border-radius:14px;background:#f8fbff;border:1px solid #dbe5f1;color:#5b677a;line-height:1.6;}
+#result{margin-top:22px;}
+.hidden{display:none !important;}
+.builder-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:18px;margin-top:12px;}
+.builder-block{background:#fbfdff;border:1px solid #e2eaf5;border-radius:18px;padding:18px;}
+.builder-block h4{margin:0 0 8px;font-size:18px;}
+.builder-block p{margin:0 0 14px;color:#64748b;line-height:1.6;font-size:14px;}
+.compact-grid,.paper-meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.table-shell{overflow:auto;border:1px solid #dbe5f1;border-radius:16px;background:white;margin-top:16px;}
+.input-table,.result-table{width:100%;border-collapse:collapse;min-width:980px;}
+.input-table th,.input-table td,.result-table th,.result-table td{border-bottom:1px solid #e2e8f0;padding:12px;vertical-align:top;}
+.input-table th,.result-table th{background:#0f172a;color:white;text-align:left;}
+.table-textarea{min-height:92px;height:92px;border-radius:12px;padding:10px 12px;resize:vertical;white-space:pre-wrap;}
+.table-input,.table-select{padding:10px 12px;border-radius:12px;font-size:14px;}
+.row-action{padding:10px 12px;border-radius:10px;font-size:13px;box-shadow:none;}
+.instruction-row td{background:#f8fafc;font-weight:700;color:#334155;}
+.instruction-row td:nth-child(2) input,
+.instruction-row td:nth-child(5) input {
+    visibility: hidden;
+    pointer-events: none;
+}
+.question-help{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f9fbff;border:1px solid #dbe5f1;color:#526174;line-height:1.6;font-size:13px;}
+.diagram-tools{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+.diagram-label{font-size:12px;font-weight:700;color:#1d4ed8;text-transform:none;letter-spacing:0;}
+.diagram-input{padding:8px;border-radius:12px;background:#fff;}
+.diagram-preview{display:flex;align-items:center;justify-content:center;min-height:68px;padding:6px;border:1px dashed #cbd5e1;border-radius:12px;background:#fbfdff;}
+.diagram-preview img{max-width:100%;max-height:82px;object-fit:contain;border-radius:8px;}
+.diagram-empty{font-size:12px;color:#64748b;line-height:1.4;text-align:center;}
+.download-bar{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.spell-status{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:700;font-size:13px;}
+.spell-status.ok{background:#ecfdf5;border-color:#bbf7d0;color:#166534;}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0;}
+.summary-card{background:#fbfdff;border:1px solid #dbe5f1;border-radius:16px;padding:16px;}
+.summary-card span{display:block;font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+.summary-card strong{font-size:24px;color:#132238;}
+.summary-card.wide{grid-column:1 / -1;}
+.summary-list{display:flex;flex-wrap:wrap;gap:8px;}
+.summary-pill{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;background:#eef5ff;border:1px solid #c7dafc;color:#1d4ed8;font-weight:700;font-size:13px;}
+.math-expression-panel{background:#fbfdff;border:1px solid #e2eaf5;border-radius:18px;padding:18px;margin:0 0 18px;}
+.math-expression-panel h4{margin:0 0 8px;font-size:20px;color:#142033;}
+.math-expression-panel p{margin:0 0 16px;color:#64748b;line-height:1.6;font-size:14px;}
+.math-expression-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.math-condition-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.math-preview-box{background:#fff;border:1px solid #dbe5f1;border-radius:14px;padding:16px;min-height:82px;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1.8;margin-top:12px;overflow:auto;}
+.math-button-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.math-quick-btn{padding:8px 12px;background:#eef5ff;color:#1d4ed8;border:1px solid #c8dafc;border-radius:10px;cursor:pointer;font-weight:700;font-size:13px;box-shadow:none;}
+.math-quick-btn:hover{background:#dde9ff;border-color:#93c5fd;}
+.expression-output{background:white;border:1px solid #bfdbfe;border-radius:14px;padding:14px;margin-top:14px;}
+.expression-output-title{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
+.expression-latex{background:#f8fafc;padding:10px;border-radius:10px;font-family:Consolas,monospace;font-size:12px;color:#1e293b;word-break:break-all;}
+.expression-rendered{margin-top:12px;padding:14px;border-radius:12px;background:#f8fbff;border:1px solid #dbe5f1;min-height:64px;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1.8;overflow:auto;}
+.math-added-badge{display:inline-block;background:#10b981;color:white;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;margin-top:6px;}
+.math-expression-wrapper{display:block;margin:8px 0 4px;padding:8px 10px;background:#f9fbff;border:1px solid #dbe5f1;border-radius:8px;text-align:center;white-space:normal;}
+.paper-table .math-expression-wrapper{border:none;background:transparent;padding:2px 0;margin:5px 0;text-align:left;}
+.math-badge{display:inline-block;margin:4px 2px;padding:6px 10px;background:#f0f7ff;border:1px solid #c7dafc;border-radius:8px;vertical-align:middle;}
+.edit-icon{width:30px;height:30px;border-radius:50%;border:1px solid #cfd8e3;background:#f8fbff;color:#1d4ed8;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;box-shadow:none;}
+.edit-icon:hover{background:#eef5ff;border-color:#93c5fd;}
+.paper-sheet{background:white;width:200mm;min-height:287mm;margin:0 auto;padding:6mm 7mm 8mm;border:1px solid #dbe5f1;box-sizing:border-box;color:#111827;font-family:"Times New Roman", Times, serif;position:relative;}
+.paper-logo{width:100%;max-height:72px;object-fit:contain;margin-bottom:4px;}
+.paper-accreditation{text-align:center;font-size:11px;line-height:1.3;margin-bottom:7px;color:#111827;font-weight:700;}
+.paper-accreditation strong{font-size:12px;}
+.paper-meta,.co-summary,.paper-table{width:100%;border-collapse:collapse;margin-top:8px;}
+.paper-meta td,.co-summary td,.co-summary th,.paper-table td,.paper-table th{border:1px solid #222;padding:5px 6px;font-size:12px;vertical-align:top;}
+.paper-meta td.label-cell{font-weight:700;width:14%;}
+.paper-meta td.value-cell{width:19%;}
+.paper-title-cell,.paper-dept-cell{font-weight:700;text-align:center;background:#fafafa;}
+.paper-title-cell{width:22%;}
+.paper-dept-cell{font-size:13px;letter-spacing:0.02em;}
+.co-summary th,.paper-table th{background:#f7f7f7;font-weight:700;text-align:center;color:#111827;}
+.paper-table td.center,.co-summary td.center,.paper-meta td.center{text-align:center;}
+.paper-table td.question-cell{line-height:1.35;white-space:pre-wrap;}
+.paper-table .instruction-row td{background:#fafafa;font-weight:700;text-align:left;}
+.question-text{white-space:pre-wrap;line-height:1.55;}
+.paper-diagram{display:block;max-width:220px;max-height:150px;object-fit:contain;border:1px solid #cbd5e1;border-radius:8px;margin-top:8px;padding:4px;background:#fff;}
+.paper-diagram.small{max-width:170px;max-height:110px;}
+.result-diagram{display:block;max-width:220px;max-height:140px;object-fit:contain;border:1px solid #cbd5e1;border-radius:10px;margin-top:10px;padding:5px;background:#fff;}
+.paper-note{font-size:10px;color:#475569;margin-top:6px;line-height:1.4;}
+.paper-watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:76px;font-weight:700;letter-spacing:0.18em;color:rgba(15,23,42,0.06);pointer-events:none;user-select:none;transform:rotate(-28deg);}
+#pdfPreviewCard{margin-top:22px;}
+#pdfPaper{background:#eef2f7;border:1px solid #dbe5f1;border-radius:18px;padding:18px;}
+body.print-paper-mode .sidebar{display:none !important;}
+body.print-paper-mode .main > *:not(#pdfPreviewCard){display:none !important;}
+body.print-paper-mode #pdfPreviewCard{display:block !important;margin:0 !important;padding:0 !important;border:none !important;box-shadow:none !important;}
+body.print-paper-mode #pdfPaper{display:block !important;background:white;border:none;padding:0;}
+@media print{
+  body{background:white !important;}
+  body *{visibility:hidden !important;}
+  body.print-paper-mode #pdfPreviewCard,
+  body.print-paper-mode #pdfPreviewCard *{visibility:visible !important;}
+  body.print-paper-mode #pdfPreviewCard{
+    display:block !important;
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    margin:0;
+    padding:0;
+    background:white;
+    box-shadow:none;
+    border:none;
+  }
+  body.print-paper-mode #pdfPaper{
+    display:block !important;
+    margin:0;
+    padding:0;
+    border:none;
+    background:white;
+  }
+  body.print-paper-mode #pdfPreviewCard > .section-head,
+  body.print-paper-mode #pdfPreviewCard > .helper{
+    display:none !important;
+  }
+  body.print-paper-mode .paper-sheet{
+    width:198mm;
+    min-height:auto;
+    border:none;
+    margin:0 auto;
+    padding:2mm 3mm 3mm;
+    box-shadow:none;
+  }
+}
+@media (max-width: 980px){
+  .form-grid{grid-template-columns: repeat(2,1fr);}
+  .summary-grid{grid-template-columns: repeat(2,1fr);}
+}
+@media (max-width: 640px){
+  .form-grid{grid-template-columns: 1fr;}
+  .compact-grid,.paper-meta-grid,.summary-grid{grid-template-columns:1fr;}
+  .main{padding:20px;}
+}
+@media (max-width: 1200px){
+  .builder-grid,.paper-meta-grid{grid-template-columns:1fr;}
+  .compact-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+<div class="profile">
+<div class="avatar"></div>
+<h3 id="facultyName"></h3>
+</div>
+
+<ul>
+<li onclick="location.href='dashboard.html'">Dashboard</li>
+<li onclick="location.href='analytics.html'">Analytics</li>
+<li onclick="location.href='aicte-pos.html'">AICTE POs</li>
+<li onclick="location.href='attainment.html'">Attainment</li>
+<li class="active">Question -> CO Detection</li>
+<li onclick="location.href='addsubject.html'">Add Subject</li>
+</ul>
+
+<button class="logout" onclick="logout()">Logout</button>
+
+</aside>
+
+<div class="main">
+
+<div class="page-head">
+<h2>Question → CO Detection</h2>
+<p>Select academic details first. Semester and subject dropdowns now load from your backend catalog so the options match your actual data.</p>
+</div>
+
+<div class="card">
+
+<div class="section-head">
+<div>
+<h3>Detection Setup</h3>
+<p>Use simple detection for quick questions, or switch to question paper mode to create a full IA paper with Q No, marks, BTL, CO mapping, and downloadable PDF with special characters & mathematical symbols.</p>
+</div>
+<div class="mode-switch">
+<button type="button" id="simpleModeBtn" class="mode-chip active" onclick="setQuestionMode('simple')">Simple Detection</button>
+<button type="button" id="paperModeBtn" class="mode-chip" onclick="setQuestionMode('paper')">Question Paper Mode</button>
+</div>
+</div>
+
+<h2>Question → CO Detection</h2>
+
+<div class="helper">
+Choose schema, year, semester, and subject first. In question paper mode, teachers can generate a paper table, enter exact questions and marks, and download a printable paper in your college format with custom special characters and mathematical symbols.
+</div>
+
+<div class="form-grid">
+
+<div class="field-box">
+<label>Schema</label>
+<select id="schema" onchange="handleQuestionSchemaChange()">
+<option value="">Select Schema</option>
+<option value="C">C-Scheme</option>
+<option value="NEP">NEP</option>
+</select>
+</div>
+
+<div class="field-box">
+<label>Year</label>
+<select id="year" onchange="handleQuestionFilterChange()">
+<option value="">Select Year</option>
+</select>
+</div>
+
+<div class="field-box">
+<label>Semester</label>
+<select id="semester" onchange="loadSubjects(); syncPaperMetadata();">
+<option value="">Select Semester</option>
+</select>
+</div>
+
+<div class="field-box">
+<label>Subject</label>
+<select id="subject" onchange="syncPaperMetadata()">
+<option value="">Select Subject</option>
+</select>
+<div id="subjectLoadStatus" style="margin-top:6px;font-size:12px;color:#64748b;line-height:1.5;"></div>
+</div>
+
+</div>
+
+<div id="simplePanel">
+<p style="margin:8px 0 10px; font-weight:700; color:#24344d;">Enter Questions (One per line)</p>
+<textarea id="questions" placeholder="Enter one question per line..." spellcheck="true"></textarea>
+<div class="button-row">
+<button type="button" onclick="detectSimpleCO()">Detect CO Mapping</button>
+<button type="button" class="ghost-btn" onclick="checkCurrentModeSpelling()">Check Spelling</button>
+</div>
+</div>
+
+<div id="paperPanel" class="hidden">
+
+<div class="math-expression-panel">
+<h4>Mathematical Expression Builder</h4>
+<p>Create summations, integrations, powers, fractions, roots, limits, derivatives, equations, and matrix expressions. Focus any question row, build the expression, then click <strong>Add to Selected Row</strong>.</p>
+
+<div class="math-expression-grid">
+<div class="field-box">
+<label>Expression Type</label>
+<select id="mathExprType" onchange="updateMathPreview(); updateInputLabels()">
+<option value="summation">Summation (Sigma)</option>
+<option value="integration">Integration</option>
+<option value="power">Power / Square</option>
+<option value="fraction">Fraction</option>
+<option value="root">Root</option>
+<option value="product">Product (Pi)</option>
+<option value="limit">Limit</option>
+<option value="derivative">Derivative</option>
+<optgroup label="Equations">
+<option value="equation">Equation</option>
+<option value="equation-system">Equation System</option>
+</optgroup>
+<optgroup label="Matrices">
+<option value="matrix">Matrix</option>
+<option value="determinant">Determinant</option>
+<option value="transpose">Transpose</option>
+<option value="inverse">Inverse</option>
+<option value="rank">Rank</option>
+<option value="trace">Trace</option>
+<option value="eigenvalue">Eigenvalue</option>
+<option value="eigenvector">Eigenvector</option>
+</optgroup>
+<option value="custom">Custom LaTeX</option>
+</select>
+</div>
+<div class="field-box">
+<label id="mathVariableLabel">Variable / Expression</label>
+<input id="mathVariable" type="text" placeholder="e.g., i, x, n or custom LaTeX" oninput="updateMathPreview()">
+</div>
+</div>
+
+<div class="math-condition-grid" id="mathConditionPanel">
+<div class="field-box">
+<label id="mathStartLabel">From / Start</label>
+<input id="mathStart" type="text" placeholder="e.g., i=1, 0" oninput="updateMathPreview()">
+</div>
+<div class="field-box">
+<label id="mathEndLabel">To / End</label>
+<input id="mathEnd" type="text" placeholder="e.g., n, 100, pi" oninput="updateMathPreview()">
+</div>
+</div>
+
+<div class="field-box">
+<label id="mathFunctionLabel">Function / Expression</label>
+<input id="mathFunction" type="text" placeholder="e.g., i^2, sin(x), e^(-x), f(x)" oninput="updateMathPreview()">
+</div>
+
+<div class="math-preview-box" id="mathPreviewBox">Preview will appear here...</div>
+
+<div class="math-button-row">
+<button type="button" class="math-quick-btn" onclick="quickMathExp('sum_i_1_100_i^2')">Σ i=1 to 100 of i²</button>
+<button type="button" class="math-quick-btn" onclick="quickMathExp('integral_0_pi_sin')">∫ 0 to π sin(x) dx</button>
+<button type="button" class="math-quick-btn" onclick="quickMathExp('square_5')">5²</button>
+<button type="button" class="math-quick-btn" onclick="quickMathExp('fraction_a_b')">a / b</button>
+<button type="button" class="math-quick-btn" onclick="quickMathExp('eq_simple')">Linear Equation</button>
+<button type="button" class="math-quick-btn" onclick="quickMathExp('eq_quadratic')">Quadratic Formula</button>
+<button type="button" class="math-quick-btn" onclick="quickMathExp('matrix_2x2')">2×2 Matrix</button>
+<button type="button" class="math-quick-btn" onclick="quickMathExp('determinant_2x2')">2×2 Determinant</button>
+<button type="button" class="math-quick-btn" onclick="quickMathExp('transpose_A')">Transpose</button>
+<button type="button" class="math-quick-btn" onclick="quickMathExp('inverse_A')">Inverse</button>
+</div>
+
+<div class="button-row">
+<button type="button" onclick="addMathExpressionToCurrentRow()">Add to Selected Row</button>
+<button type="button" class="ghost-btn" onclick="copyMathPreviewAsImage()">Copy as Image</button>
+<button type="button" class="subtle-btn" onclick="clearMathPanel()">Clear</button>
+</div>
+
+<div id="mathExpressionOutput" class="expression-output hidden">
+<div class="expression-output-title">Generated LaTeX</div>
+<div class="expression-latex" id="mathLatexCode"></div>
+<div class="expression-rendered" id="mathRenderedOutput">Rendered output will appear here...</div>
+</div>
+</div>
+
+<div class="builder-grid">
+<div class="builder-block">
+<h4>Paper Structure Builder</h4>
+<p>Set the number of main questions and subquestions, generate the paper table, then enter exact question text, marks, and module values.</p>
+<div class="compact-grid">
+<div class="field-box"><label>Main Questions</label><input id="mainQuestionCount" type="number" min="1" value="3"></div>
+<div class="field-box"><label>Subquestions / Main Question</label><input id="subQuestionCount" type="number" min="1" value="2"></div>
+<div class="field-box"><label>Default Marks / Question</label><input id="defaultQuestionMarks" type="number" min="0" value="5"></div>
+</div>
+<div class="button-row">
+<button type="button" class="secondary-btn" onclick="generateQuestionRows()">Generate Table</button>
+<button type="button" class="ghost-btn" onclick="addInstructionRow()">Add Instruction Row</button>
+<button type="button" class="subtle-btn" onclick="addQuestionRow()">Add Question Row</button>
+</div>
+<div class="question-help">
+Paste special characters, formulas, or symbols directly inside the question text box. If a question needs a diagram or figure, attach an image in that row and it will appear in the printable paper. CO mapping still uses the text part of the question, so keep a short text description with the diagram.
+</div>
+</div>
+
+<div class="builder-block">
+<h4>Paper Details & Special Elements</h4>
+<p>Configure paper metadata and add special characters or mathematical symbols that will appear in the PDF watermark.</p>
+<div class="paper-meta-grid">
+<div class="field-box"><label>Paper Title</label><input id="paperTitle" value="IA-1 Paper"></div>
+<div class="field-box"><label>Department</label><input id="paperDepartment" value="Department of Computer Engineering"></div>
+<div class="field-box"><label>Class</label><input id="paperClass" value=""></div>
+<div class="field-box"><label>Semester</label><input id="paperSemester" value=""></div>
+<div class="field-box"><label>Subject</label><input id="paperSubject" value=""></div>
+<div class="field-box"><label>Set No</label><input id="paperSetNo" value="1"></div>
+<div class="field-box"><label>Syllabus / Unit / Lesson Plan</label><input id="paperSyllabus" placeholder="1,2,3"></div>
+<div class="field-box"><label>Scheme</label><input id="paperScheme" value=""></div>
+<div class="field-box"><label>Max Marks</label><input id="paperMaxMarks" type="number" min="0" value="20"></div>
+<div class="field-box"><label>Date Of Test</label><input id="paperDate" type="date"></div>
+<div class="field-box"><label>Time</label><input id="paperTime" placeholder="12.00 noon to 1.00pm"></div>
+<div class="field-box"><label>Logo</label><input value="WATUMULL logo selected" readonly></div>
+</div>
+
+<div style="background:#fbfdff;border:1px solid #e2eaf5;border-radius:18px;padding:18px;margin-top:18px;">
+<h4 style="margin:0 0 12px;font-size:16px;">Special Character/Symbol</h4>
+<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+<select id="paperSpecialCharacter" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;" onchange="handleSpecialCharacterChange()">
+<option value="">None</option>
+<option value="★">★ Star</option>
+<option value="✓">✓ Checkmark</option>
+<option value="●">● Circle</option>
+<option value="✱">✱ Asterisk</option>
+<option value="◆">◆ Diamond</option>
+<option value="◇">◇ Diamond Outline</option>
+<option value="▲">▲ Triangle</option>
+<option value="→">→ Arrow</option>
+<option value="©">© Copyright</option>
+<option value="™">™ Trademark</option>
+<option value="®">® Registered</option>
+<option value="§">§ Section</option>
+<option value="¶">¶ Paragraph</option>
+<option value="†">† Dagger</option>
+<option value="‡">‡ Double Dagger</option>
+<option value="⚠">⚠ Warning</option>
+<option value="ⓘ">ⓘ Info</option>
+<option value="custom">Custom</option>
+</select>
+<input id="paperCustomCharacter" type="text" maxlength="5" placeholder="Enter custom character" style="display:none;width:100px;padding:8px;border:1px solid #ccc;border-radius:4px;">
+</div>
+<small style="color:#666;">Character will appear in top-right corner of the PDF as a watermark</small>
+
+<h4 style="margin:18px 0 12px;font-size:16px;">Mathematical Symbols (Type Names)</h4>
+<input id="paperMathSymbols" type="text" placeholder="e.g., lambda, pi, sigma, alpha, beta, delta, theta, gamma, phi..." style="padding:8px;border:1px solid #ccc;border-radius:4px;width:100%;" onchange="handleMathSymbolInput()" oninput="handleMathSymbolInput()">
+<small style="color:#666;display:block;margin-top:6px;">Type symbol names separated by commas. Examples: lambda, pi, sigma, alpha, beta, delta, theta, gamma, phi, psi, omega, infinity, sqrt, integral, sum, product, approx, plus-minus, divide, multiply</small>
+<div id="mathSymbolPreview" style="margin-top:12px;padding:12px;background:#f0f0f0;border-radius:4px;min-height:40px;font-size:28px;line-height:1.6;">Preview: </div>
+</div>
+
+</div>
+</div>
+
+<div class="table-shell">
+<table class="input-table" id="paperInputTable">
+<thead>
+<tr>
+<th style="width:120px;">Row Type</th>
+<th style="width:120px;">Q No</th>
+<th>Question / Instruction</th>
+<th style="width:110px;">Marks</th>
+<th style="width:120px;">Module</th>
+<th style="width:180px;">Diagram / Figure</th>
+<th style="width:110px;">Action</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<div class="button-row">
+<button type="button" onclick="detectQuestionPaper()">Generate Paper Mapping</button>
+<button type="button" class="ghost-btn" onclick="checkCurrentModeSpelling()">Check Spelling</button>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="card hidden" id="resultCard">
+<div class="section-head">
+<div>
+<h3>Detection Output</h3>
+<p id="resultSubtitle">Mapped results appear here.</p>
+</div>
+<div class="download-bar hidden" id="downloadBar">
+<div id="spellStatusPill" class="spell-status hidden">Spell check not run yet</div>
+<button type="button" class="secondary-btn" onclick="downloadQuestionPaperPDF()">Print / Generate PDF</button>
+</div>
+</div>
+
+<div class="summary-grid hidden" id="summaryGrid">
+<div class="summary-card"><span>Total Question Rows</span><strong id="summaryQuestionCount">0</strong></div>
+<div class="summary-card"><span>Total Marks</span><strong id="summaryTotalMarks">0</strong></div>
+<div class="summary-card"><span>Questions With Math</span><strong id="summaryMathCount">0</strong></div>
+<div class="summary-card"><span>Average Mapping (Out of 100)</span><strong id="summaryAverageConfidence">0%</strong></div>
+<div class="summary-card wide"><span>CO Weightage (Out of 100)</span><div class="summary-list" id="summaryCoAverage">-</div></div>
+</div>
+
+<div id="result"></div>
+</div>
+
+<div class="card hidden" id="pdfPreviewCard">
+<div id="pdfPaper"></div>
+</div>
+
+</div>
+
+<script src="spell-checker.js"></script>
+<script>
+
+/* MATHEMATICAL SYMBOLS MAPPING */
+const mathSymbolMap = {
+"lambda": "λ", "Lambda": "Λ", "pi": "π", "Pi": "Π", "sigma": "σ", "Sigma": "Σ",
+"alpha": "α", "Alpha": "Α", "beta": "β", "Beta": "Β", "delta": "δ", "Delta": "Δ",
+"theta": "θ", "Theta": "Θ", "gamma": "γ", "Gamma": "Γ", "phi": "φ", "Phi": "Φ",
+"psi": "ψ", "Psi": "Ψ", "omega": "ω", "Omega": "Ω", "mu": "μ", "nu": "ν",
+"xi": "ξ", "rho": "ρ", "tau": "τ", "upsilon": "υ", "chi": "χ", "infinity": "∞",
+"sqrt": "√", "integral": "∫", "sum": "∑", "product": "∏", "approx": "≈",
+"plus-minus": "±", "divide": "÷", "multiply": "×", "degree": "°", "prime": "′",
+"double-prime": "″", "nabla": "∇", "partial": "∂", "forall": "∀", "exists": "∃",
+"element": "∈", "not-element": "∉", "subset": "⊂", "superset": "⊃", "union": "∪",
+"intersection": "∩", "empty": "∅"
+}
+
+/* YEAR → SEM */
+const BASE_URL = window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "http://127.0.0.1:9000";
+
+const yearSemMap = {
+FE: [1,2],
+SE: [3,4],
+TE: [5,6],
+BE: [7,8]
+}
+
+const schemaYearMap = {
+C: ["FE", "SE", "TE", "BE"],
+NEP: ["FE", "SE"]
+}
+
+const bloomToBTL = {
+Remember: 1, Understand: 2, Apply: 3, Analyze: 4, Evaluate: 5, Create: 6
+}
+
+const semesterRomanMap = {
+1: "I", 2: "II", 3: "III", 4: "IV", 5: "V", 6: "VI", 7: "VII", 8: "VIII"
+}
+
+let questionMode = "simple"
+let questionSubjectCatalog = {}
+let latestPaperRows = []
+let latestPaperMeta = null
+let latestPaperSummary = null
+let paperSpellChecker = null
+let subjectLoadRequestId = 0
+let currentMathLatex = ""
+let selectedQuestionTextarea = null
+const QUESTION_SNAPSHOT_KEY = "questionDetectionSnapshot"
+window.__pageResetKeys = ["questionDetectionSnapshot"]
+
+function normalizeSemesterValue(value){
+const raw = String(value || "").trim()
+if(!raw) return ""
+if(/^\d+$/.test(raw)) return raw
+const digitMatch = raw.match(/\d+/)
+if(digitMatch) return digitMatch[0]
+const romanMatch = raw.match(/\b(I|II|III|IV|V|VI|VII|VIII)\b/i)
+if(romanMatch){
+  const roman = romanMatch[1].toUpperCase()
+  const map = {I:"1", II:"2", III:"3", IV:"4", V:"5", VI:"6", VII:"7", VIII:"8"}
+  return map[roman] || ""
+}
+return ""
+}
+
+function setQuestionSubjectStatus(message = "", tone = "neutral"){
+const node = document.getElementById("subjectLoadStatus")
+if(!node) return
+node.textContent = message
+node.style.color = tone === "error" ? "#b91c1c" : (tone === "success" ? "#047857" : "#64748b")
+}
+
+function populateQuestionYears(){
+const schema = document.getElementById("schema").value
+const yearDrop = document.getElementById("year")
+const semDrop = document.getElementById("semester")
+yearDrop.innerHTML = '<option value="">Select Year</option>'
+semDrop.innerHTML = '<option value="">Select Semester</option>'
+resetQuestionSubjectOptions()
+setQuestionSubjectStatus("")
+if(!schema) return
+const years = schemaYearMap[schema] || []
+years.forEach(y => {
+const opt = document.createElement("option")
+opt.value = y
+opt.textContent = y
+yearDrop.appendChild(opt)
+})
+}
+
+function handleQuestionSchemaChange(){
+populateQuestionYears()
+syncPaperMetadata()
+}
+
+function handleQuestionFilterChange(){
+populateQuestionSemesters()
+syncPaperMetadata()
+}
+
+function populateQuestionSemesters(){
+const year = document.getElementById("year").value
+const semDrop = document.getElementById("semester")
+semDrop.innerHTML = '<option value="">Select Semester</option>'
+resetQuestionSubjectOptions()
+setQuestionSubjectStatus("")
+if(!year) return
+const sems = yearSemMap[year] || []
+sems.forEach(s => {
+const opt = document.createElement("option")
+opt.value = s
+opt.textContent = "Semester " + semesterRomanMap[s]
+semDrop.appendChild(opt)
+})
+}
+
+async function loadSubjects(preferredSubjectValue = ""){
+const schema = document.getElementById("schema").value
+const year = document.getElementById("year").value
+const sem = normalizeSemesterValue(document.getElementById("semester").value)
+const subDrop = document.getElementById("subject")
+subDrop.innerHTML = '<option value="">Select Subject</option>'
+if(!schema || !year || !sem){
+setQuestionSubjectStatus("Select schema, year, and semester first.")
+return
+}
+const requestId = ++subjectLoadRequestId
+setQuestionSubjectStatus("Loading subjects...")
+subDrop.innerHTML = '<option value="">Loading subjects...</option>'
+const url = new URL(`${BASE_URL}/subject-catalog`)
+url.searchParams.set("schema", schema)
+url.searchParams.set("year", year)
+url.searchParams.set("semester", sem)
+try{
+const response = await fetch(url.toString(), {headers:{"Content-Type":"application/json"}})
+if(!response.ok){
+  throw new Error("Could not load subjects from backend catalog")
+}
+const data = await response.json()
+if(requestId !== subjectLoadRequestId){
+  return
+}
+questionSubjectCatalog = {}
+subDrop.innerHTML = '<option value="">Select Subject</option>'
+const subjects = Array.isArray(data.subjects) ? data.subjects : []
+subjects.forEach(s => {
+const key = s.subject_code || s.course_code || s.id || s.subject_name
+if(!key) return
+questionSubjectCatalog[key] = s
+const opt = document.createElement("option")
+opt.value = key
+opt.textContent = s.subject_name ? `${key} - ${s.subject_name}` : key
+subDrop.appendChild(opt)
+})
+if(!subjects.length){
+  subDrop.innerHTML = '<option value="">No subjects available</option>'
+  setQuestionSubjectStatus("No subjects found for the selected schema, year, and semester.", "error")
+  syncPaperMetadata()
+  return
+}
+const preferred = preferredSubjectValue || subDrop.dataset.pendingValue || ""
+if(preferred && questionSubjectCatalog[preferred]){
+  subDrop.value = preferred
+}
+delete subDrop.dataset.pendingValue
+setQuestionSubjectStatus(`${subjects.length} subject(s) loaded.`, "success")
+syncPaperMetadata()
+}catch(e){
+questionSubjectCatalog = {}
+subDrop.innerHTML = '<option value="">Unable to load subjects</option>'
+setQuestionSubjectStatus("Unable to load subjects right now. Please try again.", "error")
+console.error("Could not load subjects", e)
+}
+}
+
+function resetQuestionSubjectOptions(){
+const subjectDrop = document.getElementById("subject")
+subjectDrop.innerHTML = '<option value="">Select Subject</option>'
+questionSubjectCatalog = {}
+}
+
+function ensureQuestionSubjectsLoaded(force = false){
+const schema = document.getElementById("schema").value
+const year = document.getElementById("year").value
+const sem = normalizeSemesterValue(document.getElementById("semester").value)
+const subjectDrop = document.getElementById("subject")
+if(!schema || !year || !sem) return
+const optionCount = subjectDrop?.options?.length || 0
+const onlyPlaceholder = optionCount <= 1 || subjectDrop.value === "" && optionCount === 1
+if(force || onlyPlaceholder || !Object.keys(questionSubjectCatalog).length){
+  loadSubjects(subjectDrop?.dataset?.pendingValue || subjectDrop?.value || "")
+}
+}
+
+function setQuestionMode(mode){
+questionMode = mode
+document.getElementById("simpleModeBtn").classList.toggle("active", mode === "simple")
+document.getElementById("paperModeBtn").classList.toggle("active", mode === "paper")
+document.getElementById("simplePanel").classList.toggle("hidden", mode !== "simple")
+document.getElementById("paperPanel").classList.toggle("hidden", mode !== "paper")
+if(mode === "paper"){
+  ensureQuestionSubjectsLoaded()
+}
+persistQuestionDetectionSnapshot()
+}
+
+function syncPaperMetadata(){
+const year = document.getElementById("year").value
+const sem = normalizeSemesterValue(document.getElementById("semester").value)
+const subjectId = document.getElementById("subject").value
+const schema = document.getElementById("schema").value
+document.getElementById("paperClass").value = year || ""
+document.getElementById("paperSemester").value = sem ? "Semester " + semesterRomanMap[parseInt(sem)] : ""
+const selectedSubject = questionSubjectCatalog[subjectId]
+if(selectedSubject) {
+document.getElementById("paperSubject").value = selectedSubject.subject_name || ""
+} else {
+document.getElementById("paperSubject").value = ""
+}
+if(schema) {
+document.getElementById("paperScheme").value = schema + " Scheme"
+}
+}
+
+function handleSpecialCharacterChange(){
+const select = document.getElementById("paperSpecialCharacter")
+const customInput = document.getElementById("paperCustomCharacter")
+if(select.value === "custom"){
+customInput.style.display = "block"
+customInput.focus()
+} else {
+customInput.style.display = "none"
+}
+}
+
+function getSelectedSpecialCharacter(){
+const select = document.getElementById("paperSpecialCharacter")
+if(select.value === "custom"){
+return document.getElementById("paperCustomCharacter").value || ""
+}
+return select.value || ""
+}
+
+function convertMathSymbolNames(input){
+if(!input || input.trim() === "") return ""
+const names = input.toLowerCase().split(/[,\s]+/).filter(n => n.trim())
+const symbols = names.map(name => mathSymbolMap[name.trim()] || "").filter(s => s)
+return symbols.join(" ")
+}
+
+function handleMathSymbolInput(){
+const input = document.getElementById("paperMathSymbols").value
+const preview = convertMathSymbolNames(input)
+const previewDiv = document.getElementById("mathSymbolPreview")
+previewDiv.innerHTML = "Preview: " + (preview || "(No symbols)")
+}
+
+function getMathSymbolsString(){
+return convertMathSymbolNames(document.getElementById("paperMathSymbols").value)
+}
+
+function convertExprToLatex(expr){
+let value = String(expr || "").trim()
+if(!value) return ""
+value = value
+  .replace(/\bpi\b/gi, "\\pi")
+  .replace(/\blambda\b/gi, "\\lambda")
+  .replace(/\btheta\b/gi, "\\theta")
+  .replace(/\balpha\b/gi, "\\alpha")
+  .replace(/\bbeta\b/gi, "\\beta")
+  .replace(/\bgamma\b/gi, "\\gamma")
+  .replace(/\bdelta\b/gi, "\\delta")
+  .replace(/\bsin\b/gi, "\\sin")
+  .replace(/\bcos\b/gi, "\\cos")
+  .replace(/\btan\b/gi, "\\tan")
+  .replace(/\blog\b/gi, "\\log")
+  .replace(/\bln\b/gi, "\\ln")
+  .replace(/\bexp\b/gi, "\\exp")
+return value
+}
+
+function splitStructuredMathLines(rawValue){
+return String(rawValue || "")
+  .split(/\|\||\n+/)
+  .map(line => convertExprToLatex(line).trim())
+  .filter(Boolean)
+}
+
+function normalizeEquationSystemLine(line){
+const cleaned = convertExprToLatex(line).trim()
+if(!cleaned) return ""
+if(cleaned.includes("&")) return cleaned
+const equalIndex = cleaned.indexOf("=")
+if(equalIndex === -1) return cleaned
+const left = cleaned.slice(0, equalIndex).trim()
+const right = cleaned.slice(equalIndex + 1).trim()
+if(!left || !right) return cleaned
+return `${left} &= ${right}`
+}
+
+function convertToLatex(exprType, variable, start, end, func){
+const cleanVariable = convertExprToLatex(variable)
+const cleanStart = convertExprToLatex(start)
+const cleanEnd = convertExprToLatex(end)
+const cleanFunc = convertExprToLatex(func)
+
+switch(exprType){
+  case "summation":
+    return cleanStart && cleanEnd && cleanFunc ? `\\sum_{${cleanStart}}^{${cleanEnd}} ${cleanFunc}` : cleanFunc ? `\\sum ${cleanFunc}` : ""
+  case "integration":
+    return cleanStart && cleanEnd && cleanFunc ? `\\int_{${cleanStart}}^{${cleanEnd}} ${cleanFunc} \\, dx` : cleanFunc ? `\\int ${cleanFunc} \\, dx` : ""
+  case "power":
+    return cleanVariable ? `${cleanVariable}^{${cleanStart || "2"}}` : ""
+  case "fraction":
+    return cleanVariable && cleanStart ? `\\frac{${cleanVariable}}{${cleanStart}}` : ""
+  case "root":
+    return cleanVariable.toLowerCase() === "cube" && cleanStart ? `\\sqrt[3]{${cleanStart}}` : cleanStart ? `\\sqrt{${cleanStart}}` : ""
+  case "product":
+    return cleanStart && cleanEnd && cleanFunc ? `\\prod_{${cleanStart}}^{${cleanEnd}} ${cleanFunc}` : cleanFunc ? `\\prod ${cleanFunc}` : ""
+  case "limit":
+    return cleanVariable && cleanStart && cleanFunc ? `\\lim_{${cleanVariable} \\to ${cleanStart}} ${cleanFunc}` : ""
+  case "derivative":
+    return cleanFunc ? `\\frac{d}{d${cleanVariable || "x"}} ${cleanFunc}` : ""
+  case "equation":
+    return cleanVariable && cleanStart ? `${cleanVariable} = ${cleanStart}` : cleanVariable || cleanStart || ""
+  case "equation-system": {
+    const lines = splitStructuredMathLines(func).map(normalizeEquationSystemLine).filter(Boolean)
+    if(!lines.length) return ""
+    if(lines.length === 1){
+      return lines[0]
+    }
+    return `\\left\\{\\begin{aligned} ${lines.join(" \\\\ ")} \\end{aligned}\\right.`
+  }
+  case "matrix": {
+    const rows = splitStructuredMathLines(func)
+    const matrixType = cleanVariable || "pmatrix"
+    return rows.length ? `\\begin{${matrixType}} ${rows.join(" \\\\ ")} \\end{${matrixType}}` : ""
+  }
+  case "determinant": {
+    const rows = splitStructuredMathLines(func)
+    return rows.length ? `\\begin{vmatrix} ${rows.join(" \\\\ ")} \\end{vmatrix}` : ""
+  }
+  case "transpose":
+    return cleanVariable ? `${cleanVariable}^{T}` : ""
+  case "inverse":
+    return cleanVariable ? `${cleanVariable}^{-1}` : ""
+  case "rank":
+    return cleanVariable ? `\\mathrm{rank}(${cleanVariable})` : ""
+  case "trace":
+    return cleanVariable ? `\\mathrm{tr}(${cleanVariable})` : ""
+  case "eigenvalue":
+    return cleanVariable ? `\\lambda(${cleanVariable})` : "\\lambda"
+  case "eigenvector":
+    return cleanVariable ? `\\vec{v}(${cleanVariable})` : "\\vec{v}"
+  case "custom":
+    return String(variable || "").trim()
+  default:
+    return ""
+}
+}
+
+function updateInputLabels(){
+const configMap = {
+  summation: {variable:"Variable / Index", start:"From", end:"To", func:"Expression to Sum", showConditions:true, variablePlaceholder:"e.g., i", startPlaceholder:"e.g., i=1", endPlaceholder:"e.g., n or 100", funcPlaceholder:"e.g., i^2"},
+  integration: {variable:"Variable", start:"Lower Limit", end:"Upper Limit", func:"Function to Integrate", showConditions:true, variablePlaceholder:"e.g., x", startPlaceholder:"e.g., 0", endPlaceholder:"e.g., pi or 1", funcPlaceholder:"e.g., sin(x)"},
+  power: {variable:"Base", start:"Exponent", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"e.g., x", startPlaceholder:"e.g., 2", endPlaceholder:"Optional", funcPlaceholder:"Optional"},
+  fraction: {variable:"Numerator", start:"Denominator", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"e.g., a+b", startPlaceholder:"e.g., c+d", endPlaceholder:"Optional", funcPlaceholder:"Optional"},
+  root: {variable:"Type (square/cube)", start:"Value Under Root", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"square or cube", startPlaceholder:"e.g., x+1", endPlaceholder:"Optional", funcPlaceholder:"Optional"},
+  product: {variable:"Variable / Index", start:"From", end:"To", func:"Expression", showConditions:true, variablePlaceholder:"e.g., i", startPlaceholder:"e.g., i=1", endPlaceholder:"e.g., n", funcPlaceholder:"e.g., a_i"},
+  limit: {variable:"Variable", start:"Limit Point", end:"Optional", func:"Function", showConditions:false, variablePlaceholder:"e.g., x", startPlaceholder:"e.g., 0", endPlaceholder:"Optional", funcPlaceholder:"e.g., sin(x)/x"},
+  derivative: {variable:"Differentiate With Respect To", start:"Optional", end:"Optional", func:"Function", showConditions:false, variablePlaceholder:"e.g., x", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"e.g., x^3+2x"},
+  equation: {variable:"Left Side (LHS)", start:"Right Side (RHS)", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"e.g., y", startPlaceholder:"e.g., mx+b", endPlaceholder:"Optional", funcPlaceholder:"Optional"},
+  "equation-system": {variable:"Optional (leave blank)", start:"Optional", end:"Optional", func:"Equations (separate with || or new line)", showConditions:false, variablePlaceholder:"leave blank", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"e.g., x+y=5 || 2x-y=3"},
+  matrix: {variable:"Matrix Type (pmatrix/bmatrix)", start:"Optional", end:"Optional", func:"Rows (separate with || or new line)", showConditions:false, variablePlaceholder:"pmatrix", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"e.g., a & b || c & d"},
+  determinant: {variable:"Optional", start:"Optional", end:"Optional", func:"Rows (separate with || or new line)", showConditions:false, variablePlaceholder:"leave blank", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"e.g., a & b || c & d"},
+  transpose: {variable:"Matrix Variable", start:"Optional", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"e.g., A", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"Optional"},
+  inverse: {variable:"Matrix Variable", start:"Optional", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"e.g., A", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"Optional"},
+  rank: {variable:"Matrix Variable", start:"Optional", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"e.g., A", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"Optional"},
+  trace: {variable:"Matrix Variable", start:"Optional", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"e.g., A", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"Optional"},
+  eigenvalue: {variable:"Matrix Variable", start:"Optional", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"e.g., A", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"Optional"},
+  eigenvector: {variable:"Matrix Variable", start:"Optional", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"e.g., A", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"Optional"},
+  custom: {variable:"Custom LaTeX", start:"Optional", end:"Optional", func:"Optional", showConditions:false, variablePlaceholder:"e.g., \\frac{a}{b}", startPlaceholder:"Optional", endPlaceholder:"Optional", funcPlaceholder:"Optional"}
+}
+
+const exprType = document.getElementById("mathExprType")?.value || "summation"
+const config = configMap[exprType] || configMap.summation
+
+const variableLabel = document.getElementById("mathVariableLabel")
+const startLabel = document.getElementById("mathStartLabel")
+const endLabel = document.getElementById("mathEndLabel")
+const functionLabel = document.getElementById("mathFunctionLabel")
+const conditionPanel = document.getElementById("mathConditionPanel")
+const variableInput = document.getElementById("mathVariable")
+const startInput = document.getElementById("mathStart")
+const endInput = document.getElementById("mathEnd")
+const functionInput = document.getElementById("mathFunction")
+
+if(variableLabel) variableLabel.textContent = config.variable
+if(startLabel) startLabel.textContent = config.start
+if(endLabel) endLabel.textContent = config.end
+if(functionLabel) functionLabel.textContent = config.func
+if(conditionPanel) conditionPanel.style.display = config.showConditions ? "grid" : "none"
+if(variableInput) variableInput.placeholder = config.variablePlaceholder || ""
+if(startInput) startInput.placeholder = config.startPlaceholder || ""
+if(endInput) endInput.placeholder = config.endPlaceholder || ""
+if(functionInput) functionInput.placeholder = config.funcPlaceholder || ""
+}
+
+function typesetMath(container){
+if(window.MathJax && typeof MathJax.typesetPromise === "function" && container){
+  MathJax.typesetPromise([container]).catch(error => console.warn("Math render error", error))
+}
+}
+
+function updateMathPreview(){
+const exprType = document.getElementById("mathExprType")?.value || "summation"
+const variable = document.getElementById("mathVariable")?.value || ""
+const start = document.getElementById("mathStart")?.value || ""
+const end = document.getElementById("mathEnd")?.value || ""
+const func = document.getElementById("mathFunction")?.value || ""
+const previewBox = document.getElementById("mathPreviewBox")
+const output = document.getElementById("mathExpressionOutput")
+const latexNode = document.getElementById("mathLatexCode")
+const renderedNode = document.getElementById("mathRenderedOutput")
+const latex = convertToLatex(exprType, variable, start, end, func)
+
+currentMathLatex = latex
+
+if(!previewBox) return
+
+if(latex){
+  previewBox.innerHTML = `\\[${escapeHtml(latex)}\\]`
+  if(latexNode) latexNode.textContent = latex
+  if(renderedNode) renderedNode.innerHTML = `\\[${escapeHtml(latex)}\\]`
+  if(output) output.classList.remove("hidden")
+  typesetMath(previewBox)
+  typesetMath(renderedNode)
+}else{
+  previewBox.textContent = "Preview will appear here..."
+  if(latexNode) latexNode.textContent = ""
+  if(renderedNode) renderedNode.textContent = "Rendered output will appear here..."
+  if(output) output.classList.add("hidden")
+}
+}
+
+function quickMathExp(preset){
+const presets = {
+  "sum_i_1_100_i^2": {type:"summation", variable:"i", start:"i=1", end:"100", func:"i^2"},
+  "integral_0_pi_sin": {type:"integration", variable:"x", start:"0", end:"pi", func:"sin(x)"},
+  "square_5": {type:"power", variable:"5", start:"2", end:"", func:""},
+  "fraction_a_b": {type:"fraction", variable:"a", start:"b", end:"", func:""},
+  "eq_simple": {type:"equation", variable:"y", start:"mx+b", end:"", func:""},
+  "eq_quadratic": {type:"equation", variable:"x", start:"\\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}", end:"", func:""},
+  "matrix_2x2": {type:"matrix", variable:"pmatrix", start:"", end:"", func:"a & b || c & d"},
+  "determinant_2x2": {type:"determinant", variable:"", start:"", end:"", func:"a & b || c & d"},
+  "transpose_A": {type:"transpose", variable:"A", start:"", end:"", func:""},
+  "inverse_A": {type:"inverse", variable:"A", start:"", end:"", func:""}
+}
+const item = presets[preset]
+if(!item) return
+document.getElementById("mathExprType").value = item.type
+document.getElementById("mathVariable").value = item.variable
+document.getElementById("mathStart").value = item.start
+document.getElementById("mathEnd").value = item.end
+document.getElementById("mathFunction").value = item.func
+updateInputLabels()
+updateMathPreview()
+}
+
+function getTargetQuestionTextarea(){
+if(selectedQuestionTextarea && document.body.contains(selectedQuestionTextarea)){
+  return selectedQuestionTextarea
+}
+const rows = Array.from(document.querySelectorAll("#paperInputTable tbody tr"))
+  .filter(row => row.querySelector(".table-select")?.value !== "instruction")
+const lastRow = rows[rows.length - 1]
+selectedQuestionTextarea = lastRow?.querySelector("textarea") || null
+return selectedQuestionTextarea
+}
+
+function getTextareaLatexList(textarea){
+try{
+  const parsed = JSON.parse(textarea?.dataset?.mathLatexList || "[]")
+  return Array.isArray(parsed) ? parsed.filter(Boolean) : []
+}catch(error){
+  return []
+}
+}
+
+function setTextareaLatexList(textarea, list){
+if(!textarea) return
+textarea.dataset.mathLatexList = JSON.stringify((list || []).filter(Boolean))
+}
+
+function addMathBadge(textarea){
+if(!textarea?.parentNode) return
+let badge = textarea.parentNode.querySelector(".math-added-badge")
+const count = getTextareaLatexList(textarea).length
+if(!badge){
+  badge = document.createElement("span")
+  badge.className = "math-added-badge"
+  textarea.parentNode.appendChild(badge)
+}
+badge.textContent = `Math Added (${count})`
+}
+
+function addMathExpressionToCurrentRow(){
+if(!currentMathLatex){
+  alert("Please generate a mathematical expression first.")
+  return
+}
+const textarea = getTargetQuestionTextarea()
+if(!textarea){
+  alert("Please generate or select a question row first.")
+  return
+}
+const list = getTextareaLatexList(textarea)
+list.push(currentMathLatex)
+setTextareaLatexList(textarea, list)
+addMathBadge(textarea)
+selectedQuestionTextarea = textarea
+alert("Mathematical expression added to selected question row.")
+clearMathPanel()
+}
+
+async function copyMathPreviewAsImage(){
+const previewBox = document.getElementById("mathPreviewBox")
+if(!currentMathLatex || !previewBox || previewBox.textContent === "Preview will appear here..."){
+  alert("No expression to copy. Generate an expression first.")
+  return
+}
+if(typeof html2canvas !== "function"){
+  alert("Image copy tool is still loading. Please try again in a few seconds.")
+  return
+}
+try{
+  const canvas = await html2canvas(previewBox, {backgroundColor:"#ffffff", scale:3, logging:false, useCORS:true})
+  canvas.toBlob(async blob => {
+    try{
+      await navigator.clipboard.write([new ClipboardItem({"image/png":blob})])
+      alert("Math expression copied as image.")
+    }catch(error){
+      const link = document.createElement("a")
+      link.download = "math-expression.png"
+      link.href = canvas.toDataURL("image/png")
+      link.click()
+      alert("Math image downloaded because clipboard is not available.")
+    }
+  }, "image/png")
+}catch(error){
+  console.warn("Math image copy failed", error)
+  alert("Failed to copy expression as image.")
+}
+}
+
+function clearMathPanel(){
+const ids = ["mathVariable", "mathStart", "mathEnd", "mathFunction"]
+document.getElementById("mathExprType").value = "summation"
+ids.forEach(id => {
+  const node = document.getElementById(id)
+  if(node) node.value = ""
+})
+currentMathLatex = ""
+document.getElementById("mathPreviewBox").textContent = "Preview will appear here..."
+document.getElementById("mathExpressionOutput").classList.add("hidden")
+document.getElementById("mathLatexCode").textContent = ""
+const renderedNode = document.getElementById("mathRenderedOutput")
+if(renderedNode) renderedNode.textContent = "Rendered output will appear here..."
+updateInputLabels()
+}
+
+function buildMathMarkup(mathLatexList){
+const list = Array.isArray(mathLatexList) ? mathLatexList.filter(Boolean) : []
+return list.map(latex => `<div class="math-expression-wrapper">\\[${escapeHtml(latex)}\\]</div>`).join("")
+}
+
+function generateQuestionRows(){
+const mainCount = parseInt(document.getElementById("mainQuestionCount").value) || 1
+const subCount = parseInt(document.getElementById("subQuestionCount").value) || 1
+const tbody = document.querySelector("#paperInputTable tbody")
+tbody.innerHTML = ""
+for(let i = 1; i <= mainCount; i++){
+for(let j = 1; j <= subCount; j++){
+const row = document.createElement("tr")
+const qNo = i + "." + j
+row.innerHTML = `
+<td><select class="table-select" onchange="updateRowType(this)"><option value="question">Question</option><option value="instruction">Instruction</option></select></td>
+<td><input type="text" class="table-input" value="${qNo}"></td>
+<td><textarea class="table-textarea" spellcheck="true"></textarea></td>
+<td><input type="number" class="table-input" value="5" min="0"></td>
+<td><input type="text" class="table-input" placeholder="Module" spellcheck="true"></td>
+<td>
+  <div class="diagram-tools">
+    <span class="diagram-label">Optional Diagram</span>
+    <input type="file" class="table-input diagram-input" accept="image/*" onchange="previewDiagram(this)">
+    <div class="diagram-preview"><span class="diagram-empty">No diagram added</span></div>
+  </div>
+</td>
+<td><button type="button" class="row-action" onclick="deleteRow(this)">Delete</button></td>
+`
+tbody.appendChild(row)
+}
+}
+applyNativeSpellcheck()
+persistQuestionDetectionSnapshot()
+}
+
+function addInstructionRow(){
+const tbody = document.querySelector("#paperInputTable tbody")
+const rowCount = tbody.children.length + 1
+const row = document.createElement("tr")
+row.classList.add("instruction-row")
+row.innerHTML = `
+<td><select class="table-select" onchange="updateRowType(this)"><option value="instruction" selected>Instruction</option><option value="question">Question</option></select></td>
+<td><input type="text" class="table-input" value="${rowCount}"></td>
+<td><textarea class="table-textarea" placeholder="Enter instruction..." spellcheck="true"></textarea></td>
+<td><input type="number" class="table-input" value="0" min="0"></td>
+<td><input type="text" class="table-input" placeholder="Module" spellcheck="true"></td>
+<td>
+  <div class="diagram-tools">
+    <span class="diagram-label">Optional Diagram</span>
+    <input type="file" class="table-input diagram-input" accept="image/*" onchange="previewDiagram(this)">
+    <div class="diagram-preview"><span class="diagram-empty">No diagram added</span></div>
+  </div>
+</td>
+<td><button type="button" class="row-action" onclick="deleteRow(this)">Delete</button></td>
+`
+tbody.appendChild(row)
+applyNativeSpellcheck()
+persistQuestionDetectionSnapshot()
+}
+
+function addQuestionRow(){
+const tbody = document.querySelector("#paperInputTable tbody")
+const rowCount = tbody.children.length + 1
+const row = document.createElement("tr")
+row.innerHTML = `
+<td><select class="table-select" onchange="updateRowType(this)"><option value="question" selected>Question</option><option value="instruction">Instruction</option></select></td>
+<td><input type="text" class="table-input" value="${rowCount}"></td>
+<td><textarea class="table-textarea" spellcheck="true"></textarea></td>
+<td><input type="number" class="table-input" value="5" min="0"></td>
+<td><input type="text" class="table-input" placeholder="Module" spellcheck="true"></td>
+<td>
+  <div class="diagram-tools">
+    <span class="diagram-label">Optional Diagram</span>
+    <input type="file" class="table-input diagram-input" accept="image/*" onchange="previewDiagram(this)">
+    <div class="diagram-preview"><span class="diagram-empty">No diagram added</span></div>
+  </div>
+</td>
+<td><button type="button" class="row-action" onclick="deleteRow(this)">Delete</button></td>
+`
+tbody.appendChild(row)
+applyNativeSpellcheck()
+persistQuestionDetectionSnapshot()
+}
+
+function updateRowType(select){
+const row = select.closest("tr")
+if(select.value === "instruction"){
+row.classList.add("instruction-row")
+} else {
+row.classList.remove("instruction-row")
+}
+persistQuestionDetectionSnapshot()
+}
+
+function deleteRow(btn){
+btn.closest("tr").remove()
+persistQuestionDetectionSnapshot()
+}
+
+function updateLatestRowDiagram(inputRow, diagramSrc, diagramName = ""){
+const allRows = Array.from(document.querySelectorAll("#paperInputTable tbody tr"))
+const rowIndex = allRows.indexOf(inputRow)
+
+if(rowIndex < 0 || !latestPaperRows[rowIndex]){
+return
+}
+
+latestPaperRows[rowIndex].diagramSrc = diagramSrc || ""
+latestPaperRows[rowIndex].diagramName = diagramName || ""
+
+if(latestPaperRows.length && latestPaperMeta){
+refreshQuestionPaperView()
+}
+}
+
+function previewDiagram(input){
+const row = input.closest("tr")
+const previewBox = row?.querySelector(".diagram-preview")
+const file = input.files?.[0]
+
+if(!row || !previewBox){
+return
+}
+
+if(!file){
+row.dataset.diagramSrc = ""
+row.dataset.diagramName = ""
+previewBox.innerHTML = '<span class="diagram-empty">No diagram added</span>'
+updateLatestRowDiagram(row, "", "")
+persistQuestionDetectionSnapshot()
+return
+}
+
+if(!file.type || !file.type.startsWith("image/")){
+alert("Please select a valid image file.")
+input.value = ""
+return
+}
+
+const reader = new FileReader()
+reader.onload = () => {
+  const dataUrl = String(reader.result || "")
+  row.dataset.diagramSrc = dataUrl
+  row.dataset.diagramName = file.name || ""
+  previewBox.innerHTML = `<img src="${dataUrl}" alt="Diagram preview">`
+  updateLatestRowDiagram(row, dataUrl, file.name || "")
+  persistQuestionDetectionSnapshot()
+}
+reader.onerror = () => {
+  alert("Could not read this image. Please try another image.")
+}
+reader.readAsDataURL(file)
+}
+
+function initializeSpellChecker(){
+if(window.QuestionPaperSpellChecker){
+paperSpellChecker = new window.QuestionPaperSpellChecker()
+}
+applyNativeSpellcheck()
+}
+
+function applyNativeSpellcheck(){
+;[
+"questions",
+"paperTitle",
+"paperDepartment",
+"paperClass",
+"paperSemester",
+"paperSubject",
+"paperSetNo",
+"paperSyllabus",
+"paperScheme",
+"paperTime"
+].forEach(id => {
+const el = document.getElementById(id)
+if(el){
+el.spellcheck = true
+el.setAttribute("lang", "en")
+}
+})
+document.querySelectorAll("#paperInputTable textarea, #paperInputTable input[type='text']").forEach(el => {
+el.spellcheck = true
+el.setAttribute("lang", "en")
+})
+}
+
+function getSpellCheckContextWords(meta){
+return [
+meta?.title,
+meta?.department,
+meta?.subject,
+meta?.scheme,
+document.getElementById("subject")?.selectedOptions?.[0]?.text || "",
+document.getElementById("paperMathSymbols")?.value || ""
+].join(" ")
+}
+
+function buildSpellCheckSections(){
+if(questionMode === "simple"){
+return {
+mode: "simple",
+sections: [{label: "Simple Questions", text: document.getElementById("questions").value || ""}]
+}
+}
+const meta = getPaperMetadata()
+const rows = getPaperRows()
+if(paperSpellChecker){
+paperSpellChecker.addWordsFromText(getSpellCheckContextWords(meta))
+}
+const sections = [
+{label: "Paper Title", text: meta.title},
+{label: "Department", text: meta.department},
+{label: "Subject", text: meta.subject},
+{label: "Syllabus", text: meta.syllabus},
+{label: "Scheme", text: meta.scheme}
+]
+rows.forEach(row => {
+if(row.questionText?.trim()){
+sections.push({
+label: row.rowType === "instruction" ? `Instruction ${row.index + 1}` : `Question ${row.qNo}`,
+text: row.questionText
+})
+}
+if(row.module?.trim()){
+sections.push({
+label: row.rowType === "instruction" ? `Instruction Module ${row.index + 1}` : `Module ${row.qNo}`,
+text: row.module
+})
+}
+})
+return {mode: "paper", sections}
+}
+
+function updateSpellStatusPill(report){
+const pill = document.getElementById("spellStatusPill")
+if(!pill) return
+pill.classList.remove("hidden", "ok")
+if(!report){
+pill.textContent = "Spell check not run yet"
+return
+}
+if(report.totalErrors === 0){
+pill.classList.add("ok")
+pill.textContent = "No spelling issues detected"
+return
+}
+pill.textContent = `${report.totalErrors} issue(s) detected`
+}
+
+function checkCurrentModeSpelling(){
+if(!paperSpellChecker){
+initializeSpellChecker()
+}
+if(!paperSpellChecker){
+return alert("Spell checker could not be initialized.")
+}
+const payload = buildSpellCheckSections()
+if(!payload.sections.some(section => String(section.text || "").trim())){
+return alert("Please enter question paper content first.")
+}
+const report = paperSpellChecker.generateReport(payload.sections)
+window.lastSpellCheckReport = report
+updateSpellStatusPill(report)
+displaySpellCheckReport(report, payload.mode)
+}
+
+function displaySpellCheckReport(report, mode){
+closeSpellCheckReport()
+const modal = document.createElement("div")
+modal.id = "spellCheckModal"
+modal.style.cssText = "position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;z-index:10000;padding:18px;"
+const issueRows = report.errors.slice(0, 18).map(error => `
+<tr>
+<td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;">${escapeHtml(error.section)}</td>
+<td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;"><strong>${escapeHtml(error.word)}</strong></td>
+<td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;">${escapeHtml(error.suggestion)}</td>
+<td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;">${error.corrected ? "Known auto-fix" : "Review manually"}</td>
+</tr>
+`).join("")
+modal.innerHTML = `
+<div style="width:min(820px,96vw);max-height:88vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(15,23,42,.24);padding:22px 24px;">
+<h3 style="margin:0 0 8px;font-size:26px;color:#142033;">Spell Check Report</h3>
+<p style="margin:0 0 14px;color:#5b677a;line-height:1.6;">Technical terms, CO/PO/BTL codes, symbols, and formulas are ignored. Only likely spelling mistakes are shown.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;">
+<div style="padding:12px 14px;border:1px solid #e2e8f0;border-radius:14px;background:#fbfdff;"><strong>${report.totalErrors}</strong><br><span style="color:#64748b;font-size:13px;">Total Issues</span></div>
+<div style="padding:12px 14px;border:1px solid #e2e8f0;border-radius:14px;background:#fbfdff;"><strong>${report.correctedErrors}</strong><br><span style="color:#64748b;font-size:13px;">Known Auto-Fixes</span></div>
+<div style="padding:12px 14px;border:1px solid #e2e8f0;border-radius:14px;background:#fbfdff;"><strong>${report.uncertainErrors}</strong><br><span style="color:#64748b;font-size:13px;">Needs Review</span></div>
+<div style="padding:12px 14px;border:1px solid #e2e8f0;border-radius:14px;background:#fbfdff;"><strong>${report.errorRate}%</strong><br><span style="color:#64748b;font-size:13px;">Error Rate</span></div>
+</div>
+${report.totalErrors ? `
+<div style="border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+<table style="width:100%;border-collapse:collapse;font-size:14px;">
+<thead>
+<tr style="background:#0f172a;color:#fff;">
+<th style="padding:10px;text-align:left;">Section</th>
+<th style="padding:10px;text-align:left;">Word</th>
+<th style="padding:10px;text-align:left;">Suggestion</th>
+<th style="padding:10px;text-align:left;">Action</th>
+</tr>
+</thead>
+<tbody>${issueRows}</tbody>
+</table>
+</div>
+${report.errors.length > 18 ? `<p style="margin:10px 0 0;color:#64748b;">Showing first 18 issues out of ${report.errors.length}.</p>` : ""}
+` : `
+<div style="padding:16px;border:1px solid #bbf7d0;border-radius:16px;background:#ecfdf5;color:#166534;font-weight:700;">
+No spelling issues found. Paper is ready for PDF generation.
+</div>
+`}
+<div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:18px;">
+<button type="button" class="subtle-btn" onclick="closeSpellCheckReport()">Close</button>
+${report.correctedErrors ? `<button type="button" class="secondary-btn" onclick="autoCorrectDetectedContent('${mode}')">Auto-Correct Known Errors</button>` : ""}
+</div>
+</div>
+`
+document.body.appendChild(modal)
+}
+
+function closeSpellCheckReport(){
+const modal = document.getElementById("spellCheckModal")
+if(modal) modal.remove()
+}
+
+function autoCorrectDetectedContent(mode = questionMode, silent = false){
+if(!paperSpellChecker){
+initializeSpellChecker()
+}
+if(!paperSpellChecker) return false
+if(mode === "simple"){
+const simpleBox = document.getElementById("questions")
+if(simpleBox){
+simpleBox.value = paperSpellChecker.autocorrectText(simpleBox.value)
+}
+if(!silent){
+closeSpellCheckReport()
+alert("Known spelling mistakes corrected in simple questions.")
+checkCurrentModeSpelling()
+}
+return true
+}
+;[
+"paperTitle",
+"paperDepartment",
+"paperClass",
+"paperSemester",
+"paperSubject",
+"paperSyllabus",
+"paperScheme",
+"paperTime"
+].forEach(id => {
+const el = document.getElementById(id)
+if(el?.value){
+el.value = paperSpellChecker.autocorrectText(el.value)
+}
+})
+document.querySelectorAll("#paperInputTable tbody tr").forEach(tr => {
+tr.querySelectorAll("textarea").forEach(el => {
+if(el.value){
+el.value = paperSpellChecker.autocorrectText(el.value)
+}
+})
+tr.querySelectorAll("input[type='text']").forEach(el => {
+if(!el.readOnly && el.value){
+el.value = paperSpellChecker.autocorrectText(el.value)
+}
+})
+})
+latestPaperRows = getPaperRows()
+latestPaperMeta = getPaperMetadata()
+buildPdfPaper(latestPaperMeta, latestPaperRows)
+const report = paperSpellChecker.generateReport(buildSpellCheckSections().sections)
+updateSpellStatusPill(report)
+if(!silent){
+closeSpellCheckReport()
+alert("Known spelling mistakes corrected in paper details and question rows.")
+}
+return true
+}
+
+function getPaperMetadata(){
+const selectedSubject = questionSubjectCatalog[document.getElementById("subject").value]
+return {
+title: document.getElementById("paperTitle").value.trim() || "IA-1 Paper",
+department: document.getElementById("paperDepartment").value.trim() || "Department of Computer Engineering",
+className: document.getElementById("paperClass").value.trim() || document.getElementById("year").value,
+semester: document.getElementById("paperSemester").value.trim() || formatSemesterDisplay(document.getElementById("semester").value),
+subject: document.getElementById("paperSubject").value.trim() || selectedSubject?.subject_name || "",
+setNo: document.getElementById("paperSetNo").value.trim() || "1",
+syllabus: document.getElementById("paperSyllabus").value.trim() || "-",
+scheme: document.getElementById("paperScheme").value.trim() || `${document.getElementById("schema").value} Scheme`,
+maxMarks: Number(document.getElementById("paperMaxMarks").value || 0),
+date: document.getElementById("paperDate").value,
+time: document.getElementById("paperTime").value.trim() || "-",
+specialCharacter: getSelectedSpecialCharacter(),
+mathSymbols: getMathSymbolsString(),
+logoSrc: new URL("watumull-banner.jpg", window.location.href).href
+}
+}
+
+function getPaperRows(){
+const tbody = document.querySelector("#paperInputTable tbody")
+const rows = []
+tbody.querySelectorAll("tr").forEach((tr, idx) => {
+const cells = tr.querySelectorAll("td")
+const rowType = cells[0].querySelector("select").value
+const qNo = rowType === "instruction" ? "-" : (cells[1].querySelector("input")?.value || "-")
+const questionTextarea = cells[2].querySelector("textarea")
+const questionText = questionTextarea?.value || ""
+const marks = parseInt(cells[3].querySelector("input")?.value || 0)
+const module = rowType === "instruction" ? "" : (cells[4].querySelector("input")?.value || "")
+const diagramSrc = tr.dataset.diagramSrc || ""
+const diagramName = tr.dataset.diagramName || ""
+const mathLatexList = getTextareaLatexList(questionTextarea)
+rows.push({index: idx, rowType, qNo, questionText, marks, module, diagramSrc, diagramName, mathLatexList})
+})
+return rows
+}
+
+function formatSemesterDisplay(semValue){
+const normalized = normalizeSemesterValue(semValue)
+if(!normalized) return ""
+const rom = semesterRomanMap[parseInt(normalized)]
+return rom ? `Semester ${rom}` : ""
+}
+
+function escapeHtml(text){
+const div = document.createElement("div")
+div.textContent = text
+return div.innerHTML
+}
+
+function validateAcademicFields(){
+const schema = document.getElementById("schema").value
+const year = document.getElementById("year").value
+const sem = normalizeSemesterValue(document.getElementById("semester").value)
+const subject = document.getElementById("subject").value
+
+if(!schema || !year || !sem || !subject){
+alert("Fill schema, year, semester, and subject first")
+return false
+}
+
+return true
+}
+
+async function requestQuestionMappings(questions){
+const schema = document.getElementById("schema").value
+const subject = document.getElementById("subject").value
+
+const res = await fetch(`${BASE_URL}/detect-co`,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+questions,
+subject,
+schema
+})
+})
+
+if(!res.ok){
+  throw new Error("Could not detect CO mapping")
+}
+
+const data = await res.json()
+return Array.isArray(data.results) ? data.results : []
+}
+
+function getBTLLabel(bloom){
+const level = bloomToBTL[bloom] || 0
+return level ? `BTL${level}` : "-"
+}
+
+function normalizeBTLValue(value){
+const cleaned = String(value || "").trim().toUpperCase().replace(/\s+/g, "")
+if(!cleaned) return "-"
+if(/^BTL[1-6]$/.test(cleaned)) return cleaned
+const match = cleaned.match(/[1-6]/)
+return match ? `BTL${match[0]}` : "-"
+}
+
+function normalizeCoCode(value){
+const raw = String(value || "").trim()
+const match = raw.match(/CO\d+/i)
+if(match) return match[0].toUpperCase()
+return raw || "-"
+}
+
+function formatConfidenceValue(value){
+const numeric = Number(value || 0)
+return `${Math.round(numeric)}%`
+}
+
+function updateResultVisibility(showDownload){
+document.getElementById("resultCard").classList.remove("hidden")
+document.getElementById("downloadBar").classList.toggle("hidden", !showDownload)
+document.getElementById("summaryGrid").classList.toggle("hidden", !showDownload)
+}
+
+function computePaperSummary(rows, meta){
+const questionRows = rows.filter(row => row.rowType === "question" && row.questionText)
+const totalMarksFromRows = questionRows.reduce((sum, row) => sum + Number(row.marks || 0), 0)
+const totalMarks = meta.maxMarks || totalMarksFromRows
+const coMap = {}
+const confidenceValues = []
+const mathQuestionCount = questionRows.filter(row => Array.isArray(row.mathLatexList) && row.mathLatexList.length).length
+
+questionRows.forEach(row => {
+  if(row.co && row.co !== "-"){
+    if(!coMap[row.co]){
+      coMap[row.co] = {marks:0, count:0}
+    }
+    coMap[row.co].marks += Number(row.marks || 0)
+    coMap[row.co].count += 1
+  }
+
+  if(Number(row.confidence || 0) > 0){
+    confidenceValues.push(Number(row.confidence || 0))
+  }
+})
+
+const averageConfidence = confidenceValues.length
+  ? confidenceValues.reduce((sum, value) => sum + value, 0) / confidenceValues.length
+  : 0
+
+const coSummary = Object.entries(coMap)
+  .sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}))
+  .map(([co, value]) => ({
+    co,
+    marks:value.marks,
+    count:value.count,
+    percentage: totalMarks ? ((value.marks / totalMarks) * 100) : 0
+  }))
+
+return {
+  totalQuestionRows: questionRows.length,
+  totalMarks,
+  mathQuestionCount,
+  averageConfidence,
+  coSummary
+}
+}
+
+function refreshQuestionPaperView(){
+if(!latestPaperRows.length){
+return
+}
+
+latestPaperMeta = getPaperMetadata()
+latestPaperSummary = computePaperSummary(latestPaperRows, latestPaperMeta)
+renderQuestionPaperResult(latestPaperRows, latestPaperMeta, latestPaperSummary)
+buildPdfPaper(latestPaperMeta, latestPaperRows, latestPaperSummary)
+}
+
+function editPaperRow(index){
+const row = latestPaperRows[index]
+
+if(!row || row.rowType !== "question"){
+return
+}
+
+const editedBTL = window.prompt("Enter BTL value (BTL1 to BTL6)", row.btl || "-")
+if(editedBTL === null){
+return
+}
+
+const editedCO = window.prompt("Enter CO value (for example CO1)", row.co || "-")
+if(editedCO === null){
+return
+}
+
+row.btl = normalizeBTLValue(editedBTL)
+row.co = normalizeCoCode(editedCO)
+refreshQuestionPaperView()
+}
+
+function renderQuestionPaperResult(rows, meta, summary){
+const table = `
+<div class="table-shell">
+<table class="result-table">
+<thead>
+<tr><th>Q No</th><th>Question / Instruction</th><th>Marks</th><th>Module</th><th>BTL</th><th>CO</th><th>Confidence</th><th>Edit</th></tr>
+</thead>
+<tbody>
+${rows.map(row => {
+  if(row.rowType === "instruction"){
+    return `<tr class="instruction-row"><td colspan="8">${escapeHtml(row.questionText || "-")}</td></tr>`
+  }
+  const diagramMarkup = row.diagramSrc ? `<img src="${escapeHtml(row.diagramSrc)}" alt="${escapeHtml(row.diagramName || "Question diagram")}" class="result-diagram">` : ""
+  return `<tr><td>${escapeHtml(row.qNo || "-")}</td><td>${escapeHtml(row.questionText || "-")}${buildMathMarkup(row.mathLatexList)}${diagramMarkup}</td><td>${escapeHtml(row.marks || "-")}</td><td>${escapeHtml(row.module || "-")}</td><td>${escapeHtml(row.btl || "-")}</td><td>${escapeHtml(row.co || "-")}</td><td>${formatConfidenceValue(row.confidence || 0)}</td><td><button type="button" class="edit-icon" onclick="editPaperRow(${row.__index})" title="Edit BTL and CO">&#9998;</button></td></tr>`
+}).join("")}
+</tbody>
+</table>
+</div>
+`
+
+document.getElementById("summaryQuestionCount").textContent = summary.totalQuestionRows
+document.getElementById("summaryTotalMarks").textContent = summary.totalMarks
+document.getElementById("summaryMathCount").textContent = summary.mathQuestionCount || 0
+document.getElementById("summaryAverageConfidence").textContent = formatConfidenceValue(summary.averageConfidence)
+document.getElementById("summaryCoAverage").innerHTML = summary.coSummary.length
+? summary.coSummary.map(item => `<span class="summary-pill">${escapeHtml(item.co)}: ${item.percentage.toFixed(1)}%</span>`).join("")
+: "-"
+
+updateResultVisibility(true)
+document.getElementById("resultSubtitle").textContent = `${meta.title} mapped with Q No, marks, BTL, CO, and confidence.`
+document.getElementById("result").innerHTML = table
+typesetMath(document.getElementById("result"))
+}
+
+function formatPdfDate(value){
+if(!value) return "-"
+const parts = value.split("-")
+if(parts.length !== 3) return value
+return `${parts[2]}/${parts[1]}/${parts[0]}`
+}
+
+function buildCoSummaryTable(summary){
+if(!summary?.coSummary?.length) return ""
+
+const headers = summary.coSummary.map(item => `<th>${escapeHtml(item.co)}</th>`).join("")
+const values = summary.coSummary.map(item => `<td class="center">${escapeHtml(item.marks)} (${item.percentage.toFixed(1)}%)</td>`).join("")
+
+return `
+<table class="co-summary">
+<tr><th></th>${headers}</tr>
+<tr><th>Marks (%)</th>${values}</tr>
+</table>
+`
+}
+
+function buildPdfPaper(meta, rows, summary = latestPaperSummary){
+const pdfRoot = document.getElementById("pdfPaper")
+pdfRoot.innerHTML = `
+<div class="paper-sheet" id="pdfPaperContent">
+<div class="paper-watermark">WIET</div>
+${meta.specialCharacter ? `<div style="position:absolute;top:20px;right:30px;font-size:48px;color:#999;opacity:0.3;">${meta.specialCharacter}</div>` : ''}
+${meta.mathSymbols ? `<div style="position:absolute;top:80px;right:30px;font-size:32px;color:#ccc;opacity:0.2;text-align:right;line-height:1.6;">${meta.mathSymbols.split(' ').join('<br>')}</div>` : ''}
+<img src="${escapeHtml(meta.logoSrc)}" alt="College Logo" class="paper-logo" onerror="this.style.display='none'">
+<div class="paper-accreditation">
+<div>Affiliated to University of Mumbai, Approved by the All India Council for Technical Education &amp; Government of Maharashtra.</div>
+</div>
+<table class="paper-meta">
+<tr>
+<td class="label-cell">Title</td><td class="value-cell"><strong>${escapeHtml(meta.title)}</strong></td>
+<td colspan="2"></td>
+<td class="label-cell">Set No</td><td class="value-cell">${escapeHtml(meta.setNo)}</td>
+</tr>
+<tr>
+<td class="label-cell">Dept</td><td class="value-cell">${escapeHtml(meta.department)}</td>
+<td class="label-cell">Class</td><td class="value-cell">${escapeHtml(meta.className)}</td>
+<td class="label-cell">Date</td><td class="value-cell">${meta.date}</td>
+</tr>
+<tr>
+<td class="label-cell">Subject</td><td class="value-cell">${escapeHtml(meta.subject)}</td>
+<td class="label-cell">Semester</td><td class="value-cell">${escapeHtml(meta.semester)}</td>
+<td class="label-cell">Time</td><td class="value-cell">${escapeHtml(meta.time)}</td>
+</tr>
+<tr>
+<td class="label-cell">Syllabus</td><td class="value-cell">${escapeHtml(meta.syllabus)}</td>
+<td class="label-cell">Scheme</td><td class="value-cell">${escapeHtml(meta.scheme)}</td>
+<td class="label-cell">Max Marks</td><td class="value-cell"><strong>${meta.maxMarks}</strong></td>
+</tr>
+</table>
+${buildCoSummaryTable(summary || {coSummary:[]})}
+<table class="paper-table">
+<thead>
+<tr>
+<th style="width:12%;">Q No</th>
+<th style="width:55%;">Question</th>
+<th style="width:10%;">Marks</th>
+<th style="width:9%;">Module</th>
+<th style="width:7%;">BTL</th>
+<th style="width:7%;">CO</th>
+</tr>
+</thead>
+<tbody>
+${rows.map(row => {
+if(row.rowType === "instruction"){
+return `<tr class="instruction-row"><td colspan="6">${escapeHtml(row.questionText)}</td></tr>`
+} else {
+return `
+<tr>
+<td class="center">${escapeHtml(row.qNo)}</td>
+<td class="question-cell">
+  ${escapeHtml(row.questionText)}
+  ${buildMathMarkup(row.mathLatexList)}
+  ${row.diagramSrc ? `<img src="${escapeHtml(row.diagramSrc)}" alt="Question diagram" class="paper-diagram small">` : ""}
+</td>
+<td class="center">${row.marks}</td>
+<td class="center">${escapeHtml(row.module || "-")}</td>
+<td class="center">${escapeHtml(row.btl || "-")}</td>
+<td class="center">${escapeHtml(row.co || "-")}</td>
+</tr>
+`
+}
+}).join("")}
+</tbody>
+</table>
+</div>
+`
+persistQuestionDetectionSnapshot()
+typesetMath(pdfRoot)
+}
+
+async function detectSimpleCO(){
+if(!validateAcademicFields()){
+return
+}
+
+const text = document.getElementById("questions").value.trim()
+if(!text){
+alert("Please enter at least one question")
+return
+}
+const lines = text.split("\n").filter(l => l.trim())
+
+try{
+  const results = await requestQuestionMappings(lines)
+  const table = `
+  <div class="table-shell">
+  <table class="result-table">
+  <thead><tr><th>Question</th><th>BTL</th><th>CO</th><th>Confidence</th></tr></thead>
+  <tbody>
+  ${results.map(r => `<tr><td>${escapeHtml(r.question)}</td><td>${escapeHtml(getBTLLabel(r.bloom))}</td><td>${escapeHtml(normalizeCoCode(r.co))}</td><td>${formatConfidenceValue(r.confidence)}</td></tr>`).join("")}
+  </tbody>
+  </table>
+  </div>
+  `
+
+  updateResultVisibility(false)
+  document.getElementById("resultSubtitle").textContent = "Quick question-to-CO detection output."
+  document.getElementById("result").innerHTML = table
+  persistQuestionDetectionSnapshot()
+}catch(error){
+  console.error("Question detection failed", error)
+  alert("Question detection failed. Please try again.")
+}
+}
+
+function persistQuestionDetectionSnapshot(){
+return
+}
+
+function restoreQuestionDetectionSnapshot(){
+localStorage.removeItem(QUESTION_SNAPSHOT_KEY)
+return
+}
+
+function initializeQuestionFilters(){
+const schemaDrop = document.getElementById("schema")
+const yearDrop = document.getElementById("year")
+const semDrop = document.getElementById("semester")
+const subjectDrop = document.getElementById("subject")
+
+const preservedSchema = schemaDrop?.value || ""
+const preservedYear = yearDrop?.value || ""
+const preservedSemester = semDrop?.value || ""
+const preservedSubject = subjectDrop?.value || ""
+
+populateQuestionYears()
+
+if(preservedSchema && Array.from(schemaDrop.options).some(option => option.value === preservedSchema)){
+  schemaDrop.value = preservedSchema
+  populateQuestionYears()
+}
+
+if(preservedYear && Array.from(yearDrop.options).some(option => option.value === preservedYear)){
+  yearDrop.value = preservedYear
+  populateQuestionSemesters()
+}
+
+if(preservedSemester && Array.from(semDrop.options).some(option => option.value === preservedSemester)){
+  semDrop.value = preservedSemester
+}
+
+if(preservedSubject){
+  subjectDrop.dataset.pendingValue = preservedSubject
+}
+
+if(schemaDrop.value && yearDrop.value && normalizeSemesterValue(semDrop.value)){
+  loadSubjects(preservedSubject)
+}else{
+  setQuestionSubjectStatus("Select schema, year, and semester first.")
+}
+}
+
+async function detectQuestionPaper(){
+if(!validateAcademicFields()){
+return
+}
+
+const rows = getPaperRows()
+const questionRows = rows.filter(row => row.rowType === "question" && row.questionText)
+
+if(questionRows.length === 0){
+alert("Add at least one question row with text")
+return
+}
+
+try{
+  const mapped = await requestQuestionMappings(questionRows.map(row => row.questionText))
+  let mappedIndex = 0
+
+  const enrichedRows = rows.map(row => {
+    if(row.rowType !== "question" || !row.questionText){
+      return {...row, confidence:0, btl:"-", co:"-"}
+    }
+
+    const result = mapped[mappedIndex] || {}
+    mappedIndex += 1
+
+    return {
+      ...row,
+      confidence:Number(result.confidence || 0),
+      btl:normalizeBTLValue(getBTLLabel(result.bloom)),
+      co:normalizeCoCode(result.co),
+      bloom:result.bloom || "-"
+    }
+  })
+
+  enrichedRows.forEach((row, index) => {
+    row.__index = index
+  })
+
+  const meta = getPaperMetadata()
+  const summary = computePaperSummary(enrichedRows, meta)
+
+  latestPaperRows = enrichedRows
+  latestPaperMeta = meta
+  latestPaperSummary = summary
+
+  renderQuestionPaperResult(enrichedRows, meta, summary)
+  buildPdfPaper(meta, enrichedRows, summary)
+  document.getElementById("pdfPreviewCard").classList.remove("hidden")
+  updateSpellStatusPill(null)
+  persistQuestionDetectionSnapshot()
+}catch(error){
+  console.error("Question paper mapping failed", error)
+  alert("Question paper mapping failed. Please try again.")
+}
+}
+
+async function verifyPdfAccess(){
+let facultyEmail = localStorage.getItem("facultyEmail")
+if(!facultyEmail){
+  facultyEmail = window.prompt("Enter your faculty login email to verify PDF access.")
+}
+if(!facultyEmail || !facultyEmail.trim()){
+  alert("Faculty email is required for secure PDF access.")
+  return false
+}
+const password = window.prompt("Enter your login password to generate the PDF securely.")
+if(password === null){
+  return false
+}
+if(!password.trim()){
+  alert("Password is required to generate the PDF.")
+  return false
+}
+
+try{
+  const res = await fetch(`${BASE_URL}/login`, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email:facultyEmail.trim(), password:password.trim()})
+  })
+  const data = await res.json()
+  if(data.status !== "success"){
+    alert(data.msg || "Invalid password")
+    return false
+  }
+  localStorage.setItem("facultyEmail", facultyEmail.trim())
+  return true
+}catch(error){
+  console.error("PDF access verification failed", error)
+  alert("Could not verify login right now.")
+  return false
+}
+}
+
+function buildPrintDocumentHtml(){
+const printableMarkup = document.getElementById("pdfPaper").innerHTML
+
+return `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${escapeHtml((latestPaperMeta && latestPaperMeta.subject) || "Question Paper")}</title>
+<script>
+window.MathJax = {
+  tex: {inlineMath: [["\\\\(", "\\\\)"], ["$", "$"]], displayMath: [["\\\\[", "\\\\]"], ["$$", "$$"]]},
+  svg: {fontCache: "global"}
+};
+<\/script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"><\/script>
+<style>
+@page{size:A4 portrait;margin:8mm;}
+body{margin:0;background:#ffffff;font-family:"Times New Roman", Times, serif;color:#111827;}
+.paper-sheet{width:194mm;min-height:auto;margin:0 auto;padding:4mm 5mm 5mm;box-sizing:border-box;color:#111827;font-family:"Times New Roman", Times, serif;position:relative;}
+.paper-logo{width:100%;max-height:64px;object-fit:contain;margin-bottom:4px;}
+.paper-accreditation{text-align:center;font-size:11px;line-height:1.25;margin-bottom:7px;font-weight:700;}
+.paper-meta,.co-summary,.paper-table{width:100%;border-collapse:collapse;margin-top:7px;}
+.paper-meta td,.co-summary td,.co-summary th,.paper-table td,.paper-table th{border:1px solid #111;padding:4px 5px;font-size:12px;vertical-align:top;}
+.paper-meta td.label-cell{font-weight:700;width:16%;}
+.paper-meta td.value-cell{width:17%;}
+.co-summary th,.paper-table th{background:#ffffff;font-weight:700;text-align:center;color:#111827;}
+.paper-table td.center,.co-summary td.center,.paper-meta td.center{text-align:center;}
+.paper-table td.question-cell{line-height:1.32;white-space:pre-wrap;}
+.paper-table .instruction-row td{font-weight:700;text-align:left;background:#ffffff;}
+.paper-diagram.small{max-width:170px;max-height:110px;object-fit:contain;border:1px solid #cbd5e1;border-radius:8px;margin-top:8px;padding:4px;background:#fff;}
+.paper-watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:82px;font-weight:700;letter-spacing:0.18em;color:rgba(15,23,42,0.06);pointer-events:none;user-select:none;transform:rotate(-28deg);}
+.math-expression-wrapper{display:block;margin:5px 0;padding:2px 0;text-align:left;white-space:normal;}
+.math-expression-wrapper svg{max-width:100%;}
+</style>
+</head>
+<body>
+${printableMarkup}
+<script>
+(function(){
+  const images = Array.from(document.images || []);
+  const waitForImages = images.map(img => {
+    if (img.complete) return Promise.resolve();
+    return new Promise(resolve => {
+      img.addEventListener('load', resolve, { once: true });
+      img.addEventListener('error', resolve, { once: true });
+      setTimeout(resolve, 1500);
+    });
+  });
+  function waitForMathJax(attempts){
+    if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+      return MathJax.typesetPromise();
+    }
+    if ((attempts || 0) > 30) {
+      return Promise.resolve();
+    }
+    return new Promise(resolve => {
+      setTimeout(() => waitForMathJax((attempts || 0) + 1).then(resolve), 100);
+    });
+  }
+  Promise.all([...waitForImages, waitForMathJax(0)]).then(() => {
+    setTimeout(() => {
+      window.focus();
+      window.print();
+    }, 350);
+  });
+  window.addEventListener('afterprint', function(){
+    setTimeout(function(){ window.close(); }, 200);
+  });
+})();
+<\/script>
+</body>
+</html>
+`
+}
+
+async function downloadQuestionPaperPDF(){
+const element = document.getElementById("pdfPaperContent")
+if(!element){
+  alert("Please generate paper first")
+  return
+}
+
+const allowed = await verifyPdfAccess()
+if(!allowed){
+  return
+}
+
+autoCorrectDetectedContent("paper", true)
+refreshQuestionPaperView()
+const printWindow = window.open("", "_blank", "noopener,noreferrer")
+if(!printWindow){
+  alert("Allow pop-ups to print or save the paper as PDF.")
+  return
+}
+
+printWindow.document.open()
+printWindow.document.write(buildPrintDocumentHtml())
+printWindow.document.close()
+}
+
+/* EVENT LISTENERS */
+document.addEventListener("focusin", event => {
+if(event.target && event.target.matches("#paperInputTable textarea")){
+  selectedQuestionTextarea = event.target
+}
+}, true)
+document.getElementById("paperSpecialCharacter")?.addEventListener("change", handleSpecialCharacterChange)
+document.getElementById("paperMathSymbols")?.addEventListener("input", handleMathSymbolInput)
+document.getElementById("subject")?.addEventListener("focus", () => ensureQuestionSubjectsLoaded())
+document.getElementById("subject")?.addEventListener("mousedown", () => ensureQuestionSubjectsLoaded())
+window.addEventListener("pageshow", () => ensureQuestionSubjectsLoaded())
+/* LOGOUT */
+function logout(){
+window.location.href="login.html"
+}
+
+document.getElementById("facultyName").textContent = localStorage.getItem("facultyName") || "Faculty"
+
+initializeQuestionFilters()
+syncPaperMetadata()
+updateInputLabels()
+generateQuestionRows()
+initializeSpellChecker()
+restoreQuestionDetectionSnapshot()
+document.addEventListener("input", () => { setTimeout(persistQuestionDetectionSnapshot, 0) }, true)
+document.addEventListener("change", () => { setTimeout(persistQuestionDetectionSnapshot, 0) }, true)
+
+</script>
+<script src="page-navigation.js"></script>
+
+</body>
+</html>

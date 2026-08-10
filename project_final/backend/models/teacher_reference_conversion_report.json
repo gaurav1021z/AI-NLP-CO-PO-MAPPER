@@ -1,0 +1,425 @@
+{
+  "subject_count": 4,
+  "reference_files": [
+    "C:\\Users\\gaura\\Downloads\\file no 16 spcc.pdf",
+    "C:\\Users\\gaura\\Downloads\\17.EM CO_PO_PSO_Justification.docx",
+    "C:\\Users\\gaura\\Downloads\\17 - CG CO-PO & CO-PSO mapping justification (1).docx",
+    "C:\\Users\\gaura\\Downloads\\17.EG CO_PO_PSO_Justification_SH2022-23.doc.pdf"
+  ],
+  "subjects": {
+    "System Programming & Compiler Construction": {
+      "course_code": "CSC 601",
+      "academic_year": "Jan \u2013 May 2025 (FH-2025)",
+      "semester": "VI",
+      "source_file": "C:\\Users\\gaura\\Downloads\\file no 16 spcc.pdf",
+      "co_items": {
+        "CO1": {
+          "co_text": "Identify the relevance of different system programs.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO4",
+            "PO5",
+            "PO6",
+            "PO7",
+            "PO8",
+            "PO9",
+            "PO10",
+            "PO11"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO4",
+            "PO5",
+            "PO6",
+            "PO7",
+            "PO8",
+            "PO9",
+            "PO10",
+            "PO11",
+            "PO12"
+          ]
+        },
+        "CO2": {
+          "co_text": "Explain various data structures used for assembler and macro-processor design.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO4",
+            "PO5",
+            "PO6",
+            "PO7",
+            "PO8",
+            "PO9",
+            "PO10",
+            "PO11"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO4",
+            "PO5",
+            "PO6",
+            "PO7",
+            "PO8",
+            "PO9",
+            "PO10",
+            "PO11",
+            "PO12"
+          ]
+        },
+        "CO3": {
+          "co_text": "Distinguish between different loaders and linkers and their contribution in developing efficient user applications.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO4",
+            "PO5",
+            "PO6",
+            "PO7",
+            "PO8",
+            "PO9",
+            "PO10",
+            "PO11"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO4",
+            "PO5",
+            "PO6",
+            "PO7",
+            "PO8",
+            "PO9",
+            "PO10",
+            "PO11",
+            "PO12"
+          ]
+        },
+        "CO4": {
+          "co_text": "Understand fundamentals of compiler design and identify the relationships among different phases of the compiler.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO4",
+            "PO5",
+            "PO6",
+            "PO7",
+            "PO8",
+            "PO9",
+            "PO10",
+            "PO11"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO4",
+            "PO5",
+            "PO6",
+            "PO7",
+            "PO8",
+            "PO9",
+            "PO10",
+            "PO11",
+            "PO12"
+          ]
+        }
+      },
+      "positive_pairs": 44,
+      "negative_pairs": 0
+    },
+    "FE Computer Engineering": {
+      "course_code": "ESC101",
+      "academic_year": "",
+      "semester": "I",
+      "source_file": "C:\\Users\\gaura\\Downloads\\17.EM CO_PO_PSO_Justification.docx",
+      "co_items": {
+        "CO1": {
+          "co_text": "Determine the equivalent force-couple system for a given system of forces.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO5"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO5"
+          ]
+        },
+        "CO2": {
+          "co_text": "Demonstrate the understanding of Centroid and its significance and locate the same.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO5"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO5"
+          ]
+        },
+        "CO3": {
+          "co_text": "Illustrate the concept of force, moment and apply the same along with the concept of equilibrium in two- and three-dimensional systems with the help of FBD.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO4",
+            "PO5"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO3",
+            "PO4",
+            "PO5"
+          ]
+        },
+        "CO4": {
+          "co_text": "Calculate position, velocity and acceleration etc. of particle/rigid body using principles of kinematics",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO5"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO5"
+          ]
+        },
+        "CO5": {
+          "co_text": "Analyze particles in motion using force and acceleration, work-energy and impulse- momentum principles",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO5"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO5"
+          ]
+        },
+        "CO6": {
+          "co_text": "Establish the relation between robot joints and parameters",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO5",
+            "PO8",
+            "PO11"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO5",
+            "PO9",
+            "PO12"
+          ]
+        }
+      },
+      "positive_pairs": 26,
+      "negative_pairs": 40
+    },
+    "COMPUTER GRAPHICS": {
+      "course_code": "CSC305",
+      "academic_year": "",
+      "semester": "III",
+      "source_file": "C:\\Users\\gaura\\Downloads\\17 - CG CO-PO & CO-PSO mapping justification (1).docx",
+      "co_items": {
+        "CO1": {
+          "co_text": "Describe the basic concepts of Computer Graphics.",
+          "mapped_new_pos": [
+            "PO1"
+          ],
+          "mapped_old_pos": [
+            "PO1"
+          ]
+        },
+        "CO2": {
+          "co_text": "Demonstrate various algorithms for basic graphics primitives.",
+          "mapped_new_pos": [
+            "PO2"
+          ],
+          "mapped_old_pos": [
+            "PO2"
+          ]
+        },
+        "CO3": {
+          "co_text": "Apply 2-D geometric transformations on graphical objects.",
+          "mapped_new_pos": [
+            "PO3"
+          ],
+          "mapped_old_pos": [
+            "PO3"
+          ]
+        },
+        "CO4": {
+          "co_text": "Use various Clipping algorithms on graphical objects.",
+          "mapped_new_pos": [
+            "PO2"
+          ],
+          "mapped_old_pos": [
+            "PO2"
+          ]
+        },
+        "CO5": {
+          "co_text": "Explore 3-D geometric transformations, curve representation techniques and projections methods.",
+          "mapped_new_pos": [
+            "PO4",
+            "PO6"
+          ],
+          "mapped_old_pos": [
+            "PO4",
+            "PO6"
+          ]
+        },
+        "CO6": {
+          "co_text": "Explain visible surface detection techniques and Animation.",
+          "mapped_new_pos": [
+            "PO5"
+          ],
+          "mapped_old_pos": [
+            "PO5"
+          ]
+        }
+      },
+      "positive_pairs": 7,
+      "negative_pairs": 59
+    },
+    "Engg Graphics": {
+      "course_code": "ESC201 Semester: II",
+      "academic_year": "",
+      "semester": "",
+      "source_file": "C:\\Users\\gaura\\Downloads\\17.EG CO_PO_PSO_Justification_SH2022-23.doc.pdf",
+      "co_items": {
+        "CO1": {
+          "co_text": "Apply the basic principles of projections in Projection of Lines and Planes",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO9"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO10"
+          ]
+        },
+        "CO2": {
+          "co_text": "Apply the basic principles of projections in Projection of Solids.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO9"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO10"
+          ]
+        },
+        "CO3": {
+          "co_text": "Apply the basic principles of sectional views in Section of solids. (only 5 modules due to covid)",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO9"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO10"
+          ]
+        },
+        "CO4": {
+          "co_text": "Apply the basic principles of projections in converting 3D view to 2D drawing.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO9"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO10"
+          ]
+        },
+        "CO5": {
+          "co_text": "Read a given drawing.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO9"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO10"
+          ]
+        },
+        "CO6": {
+          "co_text": "Visualize an object from the given two views.",
+          "mapped_new_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO9"
+          ],
+          "mapped_old_pos": [
+            "PO1",
+            "PO2",
+            "PO4",
+            "PO10"
+          ]
+        }
+      },
+      "positive_pairs": 24,
+      "negative_pairs": 42
+    }
+  },
+  "old_to_new_po_conversion": {
+    "PO1": "PO1",
+    "PO2": "PO2",
+    "PO3": "PO3",
+    "PO4": "PO4",
+    "PO5": "PO5",
+    "PO6": "PO6",
+    "PO7": "PO6",
+    "PO8": "PO7",
+    "PO9": "PO8",
+    "PO10": "PO9",
+    "PO11": "PO10",
+    "PO12": "PO11"
+  }
+}

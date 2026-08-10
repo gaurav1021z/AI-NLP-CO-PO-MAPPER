@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>COPOlytics | Faculty Signup</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1e3a8a, #0f172a);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .signup-box {
+      background: white;
+      padding: 40px;
+      width: 380px;
+      border-radius: 15px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .signup-box h2 {
+      margin-bottom: 10px;
+      color: #1e3a8a;
+    }
+
+    .signup-box p {
+      margin-bottom: 25px;
+      color: #555;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #1e3a8a;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1e3a8a;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #0f172a;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 13px;
+    }
+
+    .footer a {
+      text-decoration: none;
+      color: #1e3a8a;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="signup-box">
+  <h2>COPOlytics</h2>
+  <p>Create Faculty Account</p>
+
+  <input type="text" id="name" placeholder="Full Name">
+  <input type="email" id="email" placeholder="Email Address">
+  <input type="text" id="department" placeholder="Department">
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="signup()">Create Account</button>
+
+  <div class="footer">
+    Already have account? <a href="login.html">Login</a>
+  </div>
+</div>
+
+<script>
+const BASE_URL =
+  window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "http://127.0.0.1:9000";
+
+async function signup() {
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const department = document.getElementById("department").value;
+  const password = document.getElementById("password").value;
+
+  if (!name || !email || !department || !password) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        department,
+        password
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+      alert("Signup successful ✅");
+      window.location.href = "login.html";
+    } else {
+      alert(data.msg);
+    }
+
+  } catch (error) {
+    console.error(error);
+    alert("Backend not reachable!");
+  }
+}
+</script>
+
+</body>
+</html>

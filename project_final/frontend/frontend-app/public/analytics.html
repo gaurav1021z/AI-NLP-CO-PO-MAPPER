@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Analytics - CO PO Mapping</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+/* GLOBAL */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family: Segoe UI, Arial, sans-serif;
+background:#f3f4f6;
+color:#142033;
+}
+
+/* LAYOUT */
+.layout{
+display:flex;
+min-height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+width:240px;
+background:white;
+padding:20px;
+box-shadow:2px 0 10px rgba(0,0,0,0.1);
+}
+
+.profile{
+text-align:center;
+margin-bottom:20px;
+}
+
+.avatar{
+width:80px;
+height:80px;
+border-radius:50%;
+background:#d1d5db;
+margin:auto;
+margin-bottom:10px;
+}
+
+.sidebar ul{
+list-style:none;
+margin-top:20px;
+}
+
+.sidebar ul li{
+padding:12px;
+border-radius:8px;
+cursor:pointer;
+margin-bottom:8px;
+}
+
+.sidebar ul li:hover{
+background:#4ade80;
+color:white;
+}
+
+.sidebar ul li.active{
+background:#e8f1ff;
+color:#1d4ed8;
+font-weight:700;
+}
+
+.logout{
+width:100%;
+margin-top:20px;
+padding:10px;
+background:#ef4444;
+border:none;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
+
+/* MAIN */
+.content{
+flex:1;
+padding:30px;
+}
+
+.page-head{
+background:white;
+padding:24px 28px;
+border-radius:18px;
+margin-bottom:20px;
+box-shadow:0 8px 24px rgba(15,23,42,0.05);
+}
+
+.page-head h1{
+margin-bottom:8px;
+}
+
+.page-head p{
+color:#5b677a;
+line-height:1.6;
+}
+
+/* SEARCH */
+.search-section{
+background:white;
+padding:24px;
+border-radius:18px;
+margin-bottom:20px;
+box-shadow:0 8px 24px rgba(15,23,42,0.06);
+border:1px solid #e7edf6;
+}
+
+.search-grid{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:16px;
+margin-bottom:15px;
+}
+
+.field-box{
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+.field-box label{
+font-size:13px;
+font-weight:700;
+color:#24344d;
+text-transform:uppercase;
+letter-spacing:0.03em;
+}
+
+.search-grid select{
+padding:13px 14px;
+border-radius:14px;
+border:1px solid #cfd8e3;
+font-size:15px;
+width:100%;
+background:#fbfdff;
+transition:border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-grid select:focus{
+outline:none;
+border-color:#3b82f6;
+box-shadow:0 0 0 4px rgba(59,130,246,0.12);
+background:white;
+}
+
+.helper-box{
+margin-bottom:18px;
+padding:14px 16px;
+border-radius:14px;
+background:#f8fbff;
+border:1px solid #dbe5f1;
+color:#5b677a;
+line-height:1.6;
+}
+
+.analyze-btn{
+width:100%;
+padding:13px;
+background:linear-gradient(135deg,#2563eb 0%, #1d4ed8 100%);
+border:none;
+color:white;
+border-radius:14px;
+cursor:pointer;
+font-weight:700;
+box-shadow:0 12px 24px rgba(37,99,235,0.18);
+}
+
+/* TABLE */
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+margin-bottom:20px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #ddd;
+}
+
+th{
+background:#0f172a;
+color:white;
+}
+
+/* CHART */
+.analytics-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.chart-card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.chart-card h3{
+margin:0 0 12px;
+font-size:17px;
+color:#0f172a;
+}
+
+.chart-wrap{
+height:300px;
+position:relative;
+}
+
+.chart-footnote{
+margin-top:12px;
+color:#64748b;
+font-size:12px;
+line-height:1.5;
+}
+
+/* BADGES */
+.po-badge{
+padding:6px 10px;
+border-radius:999px;
+margin:2px;
+display:inline-block;
+font-weight:700;
+font-size:13px;
+border:1px solid transparent;
+}
+
+.po-rank-1{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;}
+.po-rank-2{background:#ffedd5;color:#c2410c;border-color:#fdba74;}
+.po-rank-3{background:#fce7f3;color:#be185d;border-color:#f9a8d4;}
+
+.status-note{
+margin-top:12px;
+color:#5b677a;
+font-size:13px;
+}
+
+@media (max-width: 900px){
+  .search-grid,
+  .analytics-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+<div class="profile">
+<div class="avatar"></div>
+<h3 id="facultyName">Faculty</h3>
+</div>
+<ul>
+<li onclick="location.href='dashboard.html'">Dashboard</li>
+<li class="active">Analytics</li>
+<li onclick="location.href='aicte-pos.html'">AICTE POs</li>
+<li onclick="location.href='attainment.html'">Attainment</li>
+<li>Question → CO Detection</li>
+<li onclick="location.href='addsubject.html'">Add Subject</li>
+</ul>
+
+<button class="logout" onclick="logout()">Logout</button>
+</aside>
+
+<!-- MAIN -->
+<main class="content">
+
+<div class="page-head">
+<h1>Analytics Dashboard</h1>
+<p>Select the university and subject filters below. Mumbai University fields now use schema, year, semester, and subject options from your backend catalog.</p>
+</div>
+
+<!-- SEARCH -->
+<div class="search-section">
+
+<div class="helper-box">
+For Mumbai University, choose schema, year, semester, and subject. For other universities, the subject list loads directly from analytics data.
+</div>
+
+<div class="search-grid">
+
+<div class="field-box">
+<label>University</label>
+<select id="university" onchange="handleUniversityChange()">
+<option value="">Select University</option>
+<option>Mumbai University</option>
+<option value="SPPU">SPPU University</option>
+<option>Anna University</option>
+<option>IIT</option>
+</select>
+</div>
+
+<div class="field-box" id="generalSubjectField">
+<label>Subject</label>
+<select id="subject">
+<option value="">Select Subject</option>
+</select>
+</div>
+
+<!-- MUMBAI FIELDS -->
+<div id="mumbaiFields" style="display:none; grid-column: span 2;">
+
+<div class="search-grid">
+
+<div class="field-box">
+<label>Schema</label>
+<select id="schema" onchange="handleAnalyticsSchemaChange()">
+<option value="">Select Schema</option>
+<option value="C">C-Scheme</option>
+<option value="NEP">NEP</option>
+</select>
+</div>
+
+<div class="field-box">
+<label>Year</label>
+<select id="year" onchange="handleAnalyticsFilterChange()">
+<option value="">Select Year</option>
+</select>
+</div>
+
+<div class="field-box">
+<label>Semester</label>
+<select id="semester" onchange="loadAnalyticsMumbaiSubjects()">
+<option value="">Select Semester</option>
+</select>
+</div>
+
+<div class="field-box">
+<label>Subject</label>
+<select id="subject2">
+<option value="">Select Subject</option>
+</select>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<button class="analyze-btn" type="button" onclick="fetchData()">Analyze</button>
+<div class="status-note" id="analyticsStatus">Choose filters to load available subjects.</div>
+
+</div>
+
+<!-- TABLE -->
+<div class="card">
+<h2>CO-PO Mapping</h2>
+
+<table id="copoTable">
+<thead>
+<tr>
+<th>CO</th>
+<th>Objective</th>
+<th>Bloom</th>
+<th>PO</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- CHART -->
+<div class="analytics-grid">
+<div class="chart-card">
+<h3>All Detected PO Distribution</h3>
+<div class="chart-wrap">
+<canvas id="poLevelChart"></canvas>
+</div>
+<div class="chart-footnote" id="poChartNote"></div>
+</div>
+<div class="chart-card">
+<h3>Bloom Level Distribution</h3>
+<div class="chart-wrap">
+<canvas id="bloomChart"></canvas>
+</div>
+<div class="chart-footnote" id="bloomChartNote"></div>
+</div>
+</div>
+
+</main>
+</div>
+
+<script>
+
+const BASE_URL =
+  window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "http://127.0.0.1:9000";
+
+const YEAR_SEM_MAP = {
+  FE: [1, 2],
+  SE: [3, 4],
+  TE: [5, 6],
+  BE: [7, 8]
+};
+
+const SCHEMA_YEAR_MAP = {
+  C: ["FE", "SE", "TE", "BE"],
+  NEP: ["FE", "SE"]
+};
+
+let chart1 = null;
+let chart2 = null;
+let analyticsMumbaiCatalog = {};
+const ANALYTICS_PO_PALETTE = ["#2563eb", "#f97316", "#ec4899", "#14b8a6", "#8b5cf6", "#22c55e"];
+const ANALYTICS_PO_BADGE_CLASSES = ["po-rank-1", "po-rank-2", "po-rank-3"];
+const ANALYTICS_BLOOM_ORDER = ["Remember", "Understand", "Apply", "Analyze", "Evaluate", "Create"];
+const ANALYTICS_BLOOM_PALETTE = {
+  Remember: "#60a5fa",
+  Understand: "#2563eb",
+  Apply: "#14b8a6",
+  Analyze: "#f59e0b",
+  Evaluate: "#ec4899",
+  Create: "#8b5cf6"
+};
+window.__pageResetKeys = [];
+
+function normalizeAnalyticsBloomLabel(rawBloom){
+  const bloom = String(rawBloom || "").trim();
+  if(!bloom || bloom === "-"){
+    return "";
+  }
+
+  const match = bloom.match(/(Remember|Understand|Apply|Analyze|Evaluate|Create)/i);
+  if(match){
+    const label = match[1].toLowerCase();
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+
+  return bloom;
+}
+
+function getReadableLabelColor(hexColor){
+  const color = String(hexColor || "").replace("#", "");
+  if(color.length !== 6){
+    return "#0f172a";
+  }
+  const r = parseInt(color.slice(0, 2), 16);
+  const g = parseInt(color.slice(2, 4), 16);
+  const b = parseInt(color.slice(4, 6), 16);
+  const luminance = (0.299 * r) + (0.587 * g) + (0.114 * b);
+  return luminance > 160 ? "#0f172a" : "#ffffff";
+}
+
+const analyticsDoughnutPercentPlugin = {
+  id: "analyticsDoughnutPercentPlugin",
+  afterDatasetsDraw(chart){
+    if(chart.config.type !== "doughnut"){
+      return;
+    }
+
+    const dataset = chart.data?.datasets?.[0];
+    const meta = chart.getDatasetMeta(0);
+
+    if(!dataset || !meta?.data?.length){
+      return;
+    }
+
+    const total = (dataset.data || []).reduce((sum, value) => sum + Number(value || 0), 0) || 1;
+    const {ctx} = chart;
+
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "bold 11px Segoe UI";
+
+    meta.data.forEach((arc, index) => {
+      const rawValue = Number(dataset.data[index] || 0);
+      if(!rawValue){
+        return;
+      }
+
+      const percentage = (rawValue / total) * 100;
+      if(percentage < 3){
+        return;
+      }
+
+      const angle = (arc.startAngle + arc.endAngle) / 2;
+      const radius = arc.innerRadius + ((arc.outerRadius - arc.innerRadius) * 0.72);
+      const x = arc.x + Math.cos(angle) * radius;
+      const y = arc.y + Math.sin(angle) * radius;
+      const backgroundColor = Array.isArray(dataset.backgroundColor)
+        ? dataset.backgroundColor[index]
+        : dataset.backgroundColor;
+
+      ctx.fillStyle = getReadableLabelColor(backgroundColor);
+      ctx.fillText(`${percentage.toFixed(1)}%`, x, y);
+    });
+
+    ctx.restore();
+  }
+};
+
+document.getElementById("facultyName").textContent =
+  localStorage.getItem("facultyName") || "Faculty";
+
+function logout(){
+  localStorage.removeItem("loggedIn");
+  window.location.href = "login.html";
+}
+
+function updateAnalyticsStatus(message){
+  const status = document.getElementById("analyticsStatus");
+  if(status){
+    status.textContent = message;
+  }
+}
+
+function resetSelect(selectId, placeholder){
+  const select = document.getElementById(selectId);
+  if(select){
+    select.innerHTML = `<option value="">${placeholder}</option>`;
+  }
+
+  if(selectId === "subject2"){
+    analyticsMumbaiCatalog = {};
+  }
+}
+
+function populateSelect(selectId, options, placeholder){
+  const select = document.getElementById(selectId);
+  if(!select){
+    return;
+  }
+
+  select.innerHTML = `<option value="">${placeholder}</option>`;
+
+  options.forEach(option => {
+    select.innerHTML += `<option value="${option.value}">${option.label}</option>`;
+  });
+}
+
+function loadAnalyticsSemesters(){
+  const year = document.getElementById("year").value;
+  const semester = document.getElementById("semester");
+
+  semester.innerHTML = '<option value="">Select Semester</option>';
+  resetSelect("subject2", "Select Subject");
+
+  if(!year){
+    return;
+  }
+
+  (YEAR_SEM_MAP[year] || []).forEach(value => {
+    semester.innerHTML += `<option value="${value}">Semester ${value}</option>`;
+  });
+}
+
+function populateAnalyticsYears(){
+  const schema = document.getElementById("schema").value;
+  const year = document.getElementById("year");
+  const semester = document.getElementById("semester");
+
+  year.innerHTML = '<option value="">Select Year</option>';
+  semester.innerHTML = '<option value="">Select Semester</option>';
+  resetSelect("subject2", "Select Subject");
+
+  if(!schema){
+    return;
+  }
+
+  (SCHEMA_YEAR_MAP[schema] || []).forEach(value => {
+    year.innerHTML += `<option value="${value}">${value}</option>`;
+  });
+}
+
+async function loadUniversitySubjects(university){
+  resetSelect("subject", "Loading subjects...");
+
+  try{
+    const url = new URL(`${BASE_URL}/university-subjects`);
+    url.searchParams.set("university", university);
+
+    const res = await fetch(url.toString());
+    const data = await res.json();
+    const subjects = Array.isArray(data.subjects) ? data.subjects : [];
+
+    if(subjects.length === 0){
+      resetSelect("subject", "No subjects found");
+      updateAnalyticsStatus(`No subjects found for ${university}.`);
+      return;
+    }
+
+    populateSelect("subject", subjects, "Select Subject");
+    updateAnalyticsStatus(`Loaded ${subjects.length} subject option(s) for ${university}.`);
+  }catch(error){
+    console.error("Unable to load university subjects", error);
+    resetSelect("subject", "Unable to load subjects");
+    updateAnalyticsStatus("Unable to load subjects from the backend.");
+  }
+}
+
+async function loadAnalyticsMumbaiSubjects(){
+  const schema = document.getElementById("schema").value;
+  const year = document.getElementById("year").value;
+  const semester = document.getElementById("semester").value;
+
+  resetSelect("subject2", "Loading subjects...");
+
+  if(!schema || !year || !semester){
+    resetSelect("subject2", "Select Subject");
+    return;
+  }
+
+  try{
+    const url = new URL(`${BASE_URL}/subject-catalog`);
+    url.searchParams.set("schema", schema);
+    url.searchParams.set("year", year);
+    url.searchParams.set("semester", semester);
+
+    const res = await fetch(url.toString());
+    const data = await res.json();
+    const subjects = Array.isArray(data.subjects) ? data.subjects : [];
+
+    if(subjects.length === 0){
+      resetSelect("subject2", "No subjects found");
+      updateAnalyticsStatus("No Mumbai University subjects found for the selected filters.");
+      return;
+    }
+
+    analyticsMumbaiCatalog = {};
+
+    populateSelect(
+      "subject2",
+      subjects.map(subject => {
+        analyticsMumbaiCatalog[subject.subject_code] = subject;
+        return {
+          value: subject.subject_code,
+          label: subject.label || `${subject.subject_code} ${subject.subject_name}`.trim()
+        };
+      }),
+      "Select Subject"
+    );
+
+    updateAnalyticsStatus(`Loaded ${subjects.length} Mumbai University subject option(s).`);
+  }catch(error){
+    console.error("Unable to load Mumbai University subjects", error);
+    resetSelect("subject2", "Unable to load subjects");
+    updateAnalyticsStatus("Unable to load Mumbai University subjects from the backend.");
+  }
+}
+
+function handleAnalyticsFilterChange(){
+  loadAnalyticsSemesters();
+}
+
+function handleAnalyticsSchemaChange(){
+  populateAnalyticsYears();
+}
+
+async function handleUniversityChange(){
+  const university = document.getElementById("university").value;
+  const mumbaiFields = document.getElementById("mumbaiFields");
+  const generalSubjectField = document.getElementById("generalSubjectField");
+
+  resetSelect("subject", "Select Subject");
+  resetSelect("subject2", "Select Subject");
+  resetSelect("semester", "Select Semester");
+  document.getElementById("schema").value = "";
+  document.getElementById("year").value = "";
+
+  if(university === "Mumbai University"){
+    mumbaiFields.style.display = "block";
+    generalSubjectField.style.display = "none";
+    updateAnalyticsStatus("Choose schema, year, semester, and subject for Mumbai University.");
+    return;
+  }
+
+  mumbaiFields.style.display = "none";
+  generalSubjectField.style.display = "block";
+
+  if(!university){
+    updateAnalyticsStatus("Choose a university to start loading available subjects.");
+    return;
+  }
+
+  await loadUniversitySubjects(university);
+}
+
+function resolveAnalyticsSubject(){
+  const university = document.getElementById("university").value;
+  return university === "Mumbai University"
+    ? document.getElementById("subject2").value
+    : document.getElementById("subject").value;
+}
+
+function resolveAnalyticsPayload(){
+  const university = document.getElementById("university").value;
+
+  if(university === "Mumbai University"){
+    const subjectCode = document.getElementById("subject2").value;
+    const selectedSubject = analyticsMumbaiCatalog[subjectCode] || {};
+    return {
+      university,
+      subject: selectedSubject.subject_name || "",
+      subjectCode,
+      schema: document.getElementById("schema").value
+    };
+  }
+
+  return {
+    university,
+    subject: document.getElementById("subject").value,
+    subjectCode: "",
+    schema: ""
+  };
+}
+
+function renderTable(results){
+  const table = document.querySelector("#copoTable tbody");
+
+  if(!Array.isArray(results) || results.length === 0){
+    table.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center; color:#64748b; padding:24px;">
+          No mapping results available for the selected filters.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  table.innerHTML = results.map(result => {
+    const mapped = (Array.isArray(result.mapping) ? result.mapping : []).map((item, index) => {
+      const cls = ANALYTICS_PO_BADGE_CLASSES[index % ANALYTICS_PO_BADGE_CLASSES.length];
+      return `<span class="po-badge ${cls}">${item.po_code} (${Number(item.final_score || 0).toFixed(2)}%)</span>`;
+    }).join(" ");
+
+    return `
+      <tr>
+        <td><strong>${result.co || "-"}</strong></td>
+        <td>${result.objective || "-"}</td>
+        <td>${result.bloom || "-"}</td>
+        <td>${mapped || "-"}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function destroyCharts(){
+  if(chart1){
+    chart1.destroy();
+    chart1 = null;
+  }
+  if(chart2){
+    chart2.destroy();
+    chart2 = null;
+  }
+}
+
+function renderCharts(results){
+  destroyCharts();
+
+  const poCounts = {};
+  const bloomCounts = {};
+  const poNote = document.getElementById("poChartNote");
+  const bloomNote = document.getElementById("bloomChartNote");
+
+  results.forEach(result => {
+    (Array.isArray(result.mapping) ? result.mapping : []).forEach(item => {
+      if(item && item.po_code){
+        poCounts[item.po_code] = (poCounts[item.po_code] || 0) + 1;
+      }
+    });
+
+    const bloomLabel = normalizeAnalyticsBloomLabel(result?.bloom);
+    if(bloomLabel){
+      bloomCounts[bloomLabel] = (bloomCounts[bloomLabel] || 0) + 1;
+    }
+  });
+
+  const sortedPoEntries = Object.entries(poCounts).sort((a, b) => {
+    const aNum = parseInt(String(a[0]).replace("PO", ""), 10);
+    const bNum = parseInt(String(b[0]).replace("PO", ""), 10);
+    return aNum - bNum;
+  });
+
+  const sortedBloomEntries = Object.entries(bloomCounts).sort((a, b) => {
+    const aIndex = ANALYTICS_BLOOM_ORDER.indexOf(a[0]);
+    const bIndex = ANALYTICS_BLOOM_ORDER.indexOf(b[0]);
+    const safeAIndex = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
+    const safeBIndex = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
+    return safeAIndex - safeBIndex;
+  });
+
+  if(poNote){
+    poNote.textContent = "X-axis: PO code. Y-axis: total number of detected PO mappings across all analyzed COs.";
+  }
+
+  if(bloomNote){
+    bloomNote.textContent = "Each slice shows the percentage share of analyzed COs by Bloom level.";
+  }
+
+  chart1 = new Chart(document.getElementById("poLevelChart"), {
+    type: "bar",
+    data: {
+      labels: sortedPoEntries.map(entry => entry[0]),
+      datasets: [
+        {
+          label: "CO count",
+          data: sortedPoEntries.map(entry => entry[1]),
+          backgroundColor: sortedPoEntries.map((_, index) => ANALYTICS_PO_PALETTE[index % ANALYTICS_PO_PALETTE.length]),
+          borderRadius: 8
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: "All Detected PO Mapping Count"
+        },
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label(context) {
+              const total = sortedPoEntries.reduce((sum, entry) => sum + Number(entry[1] || 0), 0) || 1;
+              const count = Number(context.parsed.y || 0);
+              const percentage = ((count / total) * 100).toFixed(1);
+              return `${context.label}: ${count} mappings (${percentage}%)`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "Program Outcomes"
+          }
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: "Detected Mapping Count"
+          },
+          ticks: {
+            precision: 0,
+            stepSize: 1
+          }
+        }
+      }
+    }
+  });
+
+  chart2 = new Chart(document.getElementById("bloomChart"), {
+    type: "doughnut",
+    plugins: [analyticsDoughnutPercentPlugin],
+    data: {
+      labels: sortedBloomEntries.map(entry => entry[0]),
+      datasets: [
+        {
+          data: sortedBloomEntries.map(entry => entry[1]),
+          backgroundColor: sortedBloomEntries.map(entry => ANALYTICS_BLOOM_PALETTE[entry[0]] || "#94a3b8")
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: "Bloom Level Distribution"
+        },
+        legend: {
+          position: "bottom",
+          labels: {
+            boxWidth: 14,
+            font: {
+              size: 12
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label(context) {
+              const total = context.dataset.data.reduce((sum, value) => sum + value, 0) || 1;
+              const count = context.parsed;
+              const percentage = ((count / total) * 100).toFixed(1);
+              return `${context.label}: ${count} CO(s) (${percentage}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function saveAnalyticsSnapshot(){
+  localStorage.removeItem("analyticsLastSnapshot");
+  return;
+}
+
+function restoreAnalyticsSnapshot(){
+  localStorage.removeItem("analyticsLastSnapshot");
+  return false;
+}
+
+async function fetchData(){
+  const payload = resolveAnalyticsPayload();
+  const university = payload.university;
+  const subject = payload.subject;
+
+  if(!university){
+    alert("Select university");
+    return;
+  }
+
+  if(!subject){
+    alert("Select subject");
+    return;
+  }
+
+  updateAnalyticsStatus("Analyzing selected subject...");
+
+  try{
+    const url = new URL(`${BASE_URL}/analyze`);
+    url.searchParams.set("university", university);
+    url.searchParams.set("subject", subject);
+    if(payload.subjectCode){
+      url.searchParams.set("subject_code", payload.subjectCode);
+    }
+    if(payload.schema){
+      url.searchParams.set("schema", payload.schema);
+    }
+
+    const res = await fetch(url.toString());
+    const data = await res.json();
+
+    if(!res.ok || data.status === "error"){
+      throw new Error(data.msg || "Analysis failed");
+    }
+
+    const results = Array.isArray(data.results) ? data.results : [];
+    renderTable(results);
+    renderCharts(results);
+    updateAnalyticsStatus(`Loaded analytics for ${data.subject || subject}. ${results.length} course outcome(s) analyzed.`);
+  }catch(error){
+    console.error("Analytics error:", error);
+    renderTable([]);
+    destroyCharts();
+    updateAnalyticsStatus(error.message || "Unable to analyze the selected subject.");
+    alert(error.message || "Unable to analyze the selected subject.");
+  }
+}
+
+handleUniversityChange();
+renderTable([]);
+destroyCharts();
+
+</script>
+<script src="page-navigation.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>COPOlytics - Attainment</title>
+<style>
+body{margin:0;font-family:Segoe UI,sans-serif;background:#f4f6f9;}
+.layout{display:flex;}
+.sidebar{width:230px;background:white;height:100vh;padding:20px;box-shadow:2px 0 10px rgba(0,0,0,.1);position:sticky;top:0;}
+.profile{text-align:center;margin-bottom:30px;}
+.avatar{width:90px;height:90px;border-radius:50%;background:#cbd5e1;margin:auto;}
+.sidebar ul{list-style:none;padding:0;margin-top:20px;}
+.sidebar li{padding:12px;margin:6px 0;cursor:pointer;border-radius:8px;font-size:14px;}
+.sidebar li:hover{background:#f1f5f9;}
+.active{background:#5abf71;color:white;font-weight:600;}
+.logout{margin-top:20px;background:#e74c3c;color:white;border:none;width:100%;padding:12px;border-radius:8px;cursor:pointer;font-size:14px;}
+.main{flex:1;padding:40px;display:flex;flex-direction:column;gap:30px;}
+.card{background:white;padding:28px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.card-green{border-left:6px solid #5abf71;}
+.card-blue{border-left:6px solid #4a6cf7;}
+.card-teal{border-left:6px solid #0f766e;}
+.card h2,.card h3{margin-top:0;color:#1e293b;}
+label{display:block;font-size:13px;font-weight:600;color:#64748b;margin-bottom:4px;margin-top:14px;}
+.upload-zone{border:2px dashed #cbd5e1;padding:30px;text-align:center;border-radius:12px;background:#f8fafc;cursor:pointer;transition:.2s;}
+.upload-zone:hover{border-color:#5abf71;background:#f0fdf4;}
+.upload-zone input[type=file]{display:none;}
+.upload-label{font-size:14px;color:#64748b;}
+.upload-label span{color:#5abf71;font-weight:600;cursor:pointer;}
+#fileName{margin-top:10px;font-size:13px;color:#475569;font-weight:500;}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px;transition:.2s;}
+.btn:hover{opacity:.9;transform:translateY(-1px);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-green{background:#5abf71;color:white;}
+.btn-download{background:#0f766e;color:white;}
+.loader{display:none;text-align:center;padding:20px;color:#64748b;}
+.spinner{border:4px solid #e2e8f0;border-top:4px solid #5abf71;border-radius:50%;width:36px;height:36px;animation:spin .8s linear infinite;margin:10px auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:20px;}
+.co-card{background:#f8fafc;border-radius:10px;padding:16px;text-align:center;border:1px solid #e2e8f0;}
+.co-card .co-label{font-size:13px;font-weight:700;color:#475569;margin-bottom:6px;}
+.co-card .co-value{font-size:28px;font-weight:800;}
+.co-card .co-status{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-block;margin-top:6px;}
+.high{color:#166534;background:#dcfce7;}
+.medium{color:#92400e;background:#fef3c7;}
+.low{color:#991b1b;background:#fee2e2;}
+table{width:100%;border-collapse:collapse;margin-top:20px;font-size:13px;}
+th{background:#f1f5f9;padding:10px 12px;text-align:center;font-weight:600;color:#475569;border:1px solid #e2e8f0;}
+td{border:1px solid #e2e8f0;padding:9px 12px;text-align:center;color:#334155;}
+tr:nth-child(even) td{background:#f8fafc;}
+.tag-pass{background:#dcfce7;color:#166534;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600;}
+.tag-avg{background:#fef3c7;color:#92400e;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600;}
+.tag-low{background:#fee2e2;color:#991b1b;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600;}
+.scheme-selector{display:flex;gap:12px;margin-bottom:4px;}
+.scheme-option{flex:1;padding:14px 16px;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:.2s;background:#f8fafc;}
+.scheme-option:hover{border-color:#5abf71;background:#f0fdf4;}
+.scheme-option.selected{border-color:#5abf71;background:#f0fdf4;box-shadow:0 0 0 3px rgba(90,191,113,0.15);}
+.scheme-title{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;}
+.scheme-desc{font-size:11px;color:#64748b;}
+.ia-section{margin-top:20px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;}
+.ia-header{padding:10px 16px;font-size:13px;font-weight:700;letter-spacing:.3px;}
+.ia1-section{border-color:#93c5fd;}
+.ia2-section{border-color:#6ee7b7;}
+.ia1-header{background:#D6E4F7;color:#1e3a5f;}
+.ia2-header{background:#D5F5E3;color:#14532d;}
+.ia-section table{margin-top:0;border-radius:0;}
+.hint{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;font-size:13px;color:#1e40af;margin-bottom:16px;}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="profile">
+    <div class="avatar"></div>
+    <h3 id="facultyName"></h3>
+  </div>
+  <ul>
+    <li onclick="location.href='dashboard.html'">Dashboard</li>
+    <li onclick="location.href='analytics.html'">Analytics</li>
+    <li onclick="location.href='aicte-pos.html'">AICTE POs</li>
+    <li class="active">Attainment</li>
+    <li onclick="location.href='question-detection.html'">Question → CO Detection</li>
+    <li onclick="location.href='addsubject.html'">Add Subject</li>
+  </ul>
+  <button class="logout" onclick="logout()">Logout</button>
+</aside>
+
+<div class="main">
+
+  <div class="card card-green">
+    <h2>📊 Course Outcome Attainment</h2>
+    <div class="hint">
+      Upload the standard CO Attainment Excel file (.xls / .xlsx). The system auto-detects
+      questions and their CO mappings, computes 60% thresholds, calculates attainment levels,
+      and generates a formatted downloadable report.
+    </div>
+    <label>Select Scheme</label>
+    <div class="scheme-selector">
+      <div class="scheme-option selected" id="schemeC" onclick="selectScheme('C')">
+        <div class="scheme-title">C Scheme</div>
+        <div class="scheme-desc">Level 3: >=70% | Level 2: >=60% | Level 1: >=50%</div>
+      </div>
+      <div class="scheme-option" id="schemeNEP" onclick="selectScheme('NEP')">
+        <div class="scheme-title">NEP Scheme</div>
+        <div class="scheme-desc">Level 3: >=60% | Level 2: >=50% | Level 1: >=40%</div>
+      </div>
+    </div>
+    <label>Upload CO Marks Excel File</label>
+    <div class="upload-zone" id="dropZone" onclick="document.getElementById('excelFile').click()">
+      <input type="file" id="excelFile" accept=".xls,.xlsx" onchange="onFileChange(event)">
+      <div class="upload-label">Drag & drop or <span>browse file</span></div>
+      <div id="fileName">No file selected</div>
+    </div>
+    <button class="btn btn-green" id="calcBtn" onclick="calculate()" disabled>
+      ⚙️ Calculate Attainment
+    </button>
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <div>Analyzing marks and computing CO attainment…</div>
+    </div>
+  </div>
+
+  <div class="card card-blue" id="resultsCard" style="display:none">
+    <h3>📈 CO Attainment Results</h3>
+    <div id="summaryGrid" class="summary-grid"></div>
+    <div id="detailTable"></div>
+  </div>
+
+  <div class="card card-teal" id="downloadSection" style="display:none">
+    <h3>⬇️ Download Report</h3>
+    <p style="color:#475569;font-size:14px;margin-top:0;">
+      The report includes your original data plus a formatted <strong>CO Attainment Summary</strong>
+      sheet with per-question analysis, thresholds, and final attainment levels.
+    </p>
+    <button class="btn btn-download" onclick="downloadReport()">
+      ⬇ Download CO Attainment Excel Report
+    </button>
+  </div>
+
+</div>
+</div>
+
+<script>
+const BASE_URL =
+  window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "http://127.0.0.1:9000"
+let selectedFile = null
+let reportBlob   = null
+let reportFilename = 'CO_Attainment_Report.xlsx'
+let selectedScheme = 'C'
+const ATTAINMENT_PREVIEW_KEY = 'attainmentLastPreview'
+window.__pageResetKeys = ['attainmentLastPreview']
+
+function resetAttainmentUi({ clearStoredPreview = true } = {}){
+  selectedFile = null
+  reportBlob = null
+  reportFilename = 'CO_Attainment_Report.xlsx'
+
+  const fileInput = document.getElementById('excelFile')
+  const fileName = document.getElementById('fileName')
+  const calcBtn = document.getElementById('calcBtn')
+  const loader = document.getElementById('loader')
+  const resultsCard = document.getElementById('resultsCard')
+  const downloadSection = document.getElementById('downloadSection')
+  const summaryGrid = document.getElementById('summaryGrid')
+  const detailTable = document.getElementById('detailTable')
+  const downloadButton = document.querySelector('#downloadSection .btn-download')
+
+  if(fileInput){
+    fileInput.value = ''
+  }
+  if(fileName){
+    fileName.textContent = 'No file selected'
+  }
+  if(calcBtn){
+    calcBtn.disabled = true
+  }
+  if(loader){
+    loader.style.display = 'none'
+  }
+  if(resultsCard){
+    resultsCard.style.display = 'none'
+  }
+  if(downloadSection){
+    downloadSection.style.display = 'none'
+  }
+  if(summaryGrid){
+    summaryGrid.innerHTML = ''
+  }
+  if(detailTable){
+    detailTable.innerHTML = ''
+  }
+  if(downloadButton){
+    downloadButton.textContent = 'Download CO Attainment Excel Report'
+  }
+
+  if(clearStoredPreview){
+    try{
+      localStorage.removeItem(ATTAINMENT_PREVIEW_KEY)
+    }catch(error){
+      console.warn('Unable to clear attainment preview', error)
+    }
+  }
+}
+
+window.beforePageRefreshClear = () => {
+  resetAttainmentUi({ clearStoredPreview: true })
+}
+
+function selectScheme(scheme){
+  selectedScheme = scheme
+  document.getElementById('schemeC').classList.toggle('selected', scheme === 'C')
+  document.getElementById('schemeNEP').classList.toggle('selected', scheme === 'NEP')
+}
+
+function getDownloadFilename(response){
+  const disposition = response.headers.get('content-disposition') || ''
+  const match = disposition.match(/filename="?([^"]+)"?/)
+  return match && match[1] ? match[1] : 'CO_Attainment_Report.xlsx'
+}
+
+function onFileChange(e){
+  selectedFile = e.target.files[0]
+  if(selectedFile){
+    document.getElementById('fileName').textContent = '📄 ' + selectedFile.name
+    document.getElementById('calcBtn').disabled = false
+  }
+}
+
+async function calculate(){
+  if(!selectedFile){ alert('Please upload an Excel file first.'); return }
+
+  document.getElementById('loader').style.display = 'block'
+  document.getElementById('calcBtn').disabled = true
+  document.getElementById('resultsCard').style.display = 'none'
+  document.getElementById('downloadSection').style.display = 'none'
+  reportBlob = null
+
+  try{
+    let formData = new FormData()
+    formData.append('file', selectedFile)
+    formData.append('scheme', selectedScheme)
+
+    let response = await fetch(`${BASE_URL}/calculate-attainment`, {
+      method:'POST',
+      body:formData
+    })
+
+    if(!response.ok){
+      let err = await response.json().catch(()=>({}))
+      throw new Error(err.detail || 'Server error ' + response.status)
+    }
+
+    reportBlob = await response.blob()
+    reportFilename = getDownloadFilename(response)
+    document.querySelector('#downloadSection .btn-download').textContent =
+      `Download ${reportFilename}`
+
+    // Try preview endpoint for UI display
+    let fd2 = new FormData()
+    fd2.append('file', selectedFile)
+    fd2.append('scheme', selectedScheme)
+    let res2 = await fetch(`${BASE_URL}/calculate-attainment-preview`,{method:'POST',body:fd2})
+    if(res2.ok){
+      renderResults(await res2.json())
+    }
+
+    document.getElementById('downloadSection').style.display = 'block'
+
+  } catch(err){
+    console.error(err)
+    if(reportBlob){
+      document.getElementById('downloadSection').style.display = 'block'
+    } else {
+      alert('Error: ' + err.message)
+    }
+  } finally {
+    document.getElementById('loader').style.display = 'none'
+    document.getElementById('calcBtn').disabled = false
+  }
+}
+
+function renderResults(data){
+  const co_att = data.co_attainments  || {}
+  const q_att  = data.q_attainments   || []
+  const total  = data.total_students  || 0
+  const scheme = data.scheme || selectedScheme
+
+  let gridHtml = ''
+  for(let co in co_att){
+    let val = co_att[co]
+    let cls = val>=2.5?'high':val>=1.5?'medium':'low'
+    let lbl = val>=2.5?'High':val>=1.5?'Medium':'Low'
+    gridHtml += `<div class="co-card">
+      <div class="co-label">${co}</div>
+      <div class="co-value ${cls}">${val}</div>
+      <span class="co-status ${cls}">${lbl}</span>
+    </div>`
+  }
+  document.getElementById('summaryGrid').innerHTML = gridHtml
+
+  // Level tag uses exact sheet formula: pct>=70→3, pct>=60→2, pct>=50→1, else 0
+  function levelTag(lvl){
+    if(lvl===3) return '<span class="tag-pass">Level 3</span>'
+    if(lvl===2) return '<span class="tag-avg">Level 2</span>'
+    if(lvl===1) return '<span class="tag-low">Level 1</span>'
+    return '<span class="tag-low">Level 0</span>'
+  }
+
+  const formulaText = scheme === 'NEP'
+    ? 'Level: % >= 60 -> 3, % >= 50 -> 2, % >= 40 -> 1, else 0'
+    : 'Level: % >= 70 -> 3, % >= 60 -> 2, % >= 50 -> 1, else 0'
+
+  const ia1 = q_att.filter(q => (q.ia || 'IA1') === 'IA1')
+  const ia2 = q_att.filter(q => (q.ia || 'IA1') === 'IA2')
+
+  function buildQuestionTable(questions){
+    if(!questions.length){
+      return '<p style="color:#94a3b8;font-size:13px;padding:16px;">No questions found in this assessment section.</p>'
+    }
+
+    let tableHtml = `<table>
+      <tr><th>Question</th><th>Mapped COs</th><th>Max Marks</th><th>60% Threshold</th>
+      <th>Students ≥ Threshold</th><th>% Above Threshold</th><th>Attainment Level</th></tr>`
+
+    questions.forEach((q)=>{
+      tableHtml += `<tr>
+        <td>${q.label}</td><td>${q.cos.join(', ')}</td><td>${q.max}</td>
+        <td>${q.threshold}</td><td>${q.above_thr} / ${q.appeared}</td>
+        <td>${q.pct}%</td><td>${levelTag(q.level)}</td>
+      </tr>`
+    })
+
+    return tableHtml + '</table>'
+  }
+
+  let t = `
+  <p style="font-size:12px;color:#64748b;margin-top:16px;">
+    <strong>Scheme:</strong> ${scheme} Scheme &nbsp;|&nbsp;
+    <strong>Formula:</strong>
+    Threshold = Max × 60% &nbsp;|&nbsp;
+    ${formulaText} &nbsp;|&nbsp;
+    CO Attainment = AVERAGE of question levels mapped to that CO
+  </p>
+  <h4 style="margin-top:8px;color:#1e293b;">Per-Question Analysis (Total Students: ${total})</h4>`
+
+  if(ia1.length){
+    t += `<div class="ia-section ia1-section">
+      <div class="ia-header ia1-header">IA1 Question Analysis</div>
+      ${buildQuestionTable(ia1)}
+    </div>`
+  }
+
+  if(ia2.length){
+    t += `<div class="ia-section ia2-section">
+      <div class="ia-header ia2-header">IA2 Question Analysis</div>
+      ${buildQuestionTable(ia2)}
+    </div>`
+  }
+
+  if(!ia1.length && !ia2.length){
+    t += buildQuestionTable(q_att)
+  }
+
+  document.getElementById('detailTable').innerHTML = t
+  document.getElementById('resultsCard').style.display = 'block'
+}
+
+function downloadReport(){
+  if(!reportBlob){ alert('Please calculate attainment first.'); return }
+  let url = URL.createObjectURL(reportBlob)
+  let a = document.createElement('a')
+  a.href = url
+  a.download = reportFilename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function logout(){ alert('Logged Out'); window.location.href='login.html' }
+
+window.onload = ()=>{
+  let name = localStorage.getItem('facultyName')
+  if(name) document.getElementById('facultyName').textContent = name
+  resetAttainmentUi({ clearStoredPreview: true })
+
+  let zone = document.getElementById('dropZone')
+  zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.style.borderColor='#5abf71' })
+  zone.addEventListener('dragleave', ()=>{ zone.style.borderColor='#cbd5e1' })
+  zone.addEventListener('drop', e=>{
+    e.preventDefault(); zone.style.borderColor='#cbd5e1'
+    let f = e.dataTransfer.files[0]
+    if(f&&(f.name.endsWith('.xls')||f.name.endsWith('.xlsx'))){
+      selectedFile=f
+      document.getElementById('fileName').textContent='📄 '+f.name
+      document.getElementById('calcBtn').disabled=false
+    } else { alert('Please drop an Excel (.xls or .xlsx) file.') }
+  })
+}
+</script>
+<script src="page-navigation.js"></script>
+
+</body>
+</html>

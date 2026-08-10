@@ -1,0 +1,378 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f4f6fb;
+}
+
+.layout {
+  display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 230px;
+  background: white;
+  padding: 20px;
+  height: 100vh;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+}
+
+.profile {
+  text-align: center;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  background: #dbeafe;
+  border-radius: 50%;
+  margin: auto;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 30px;
+}
+
+.sidebar li {
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.sidebar li.active,
+.sidebar li:hover {
+  background: #22c55e;
+  color: white;
+}
+
+.logout {
+  margin-top: 40px;
+  width: 100%;
+  padding: 10px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+  padding: 30px;
+}
+
+.header {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+.process {
+  background: #ecfeff;
+  border-left: 5px solid #06b6d4;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+/* RESULTS */
+.co-card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.po {
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.level {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: white;
+}
+
+.l1 { background: #f59e0b; }
+.l2 { background: #10b981; }
+.l3 { background: #16a34a; }
+/* ===== NEW ADDITIONS (RESULT PAGE + TABLE UI) ===== */
+
+/* Result Header */
+.result-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #1f2937;
+}
+
+/* CO Card Enhancement */
+.co-card h3 {
+  margin: 0 0 10px;
+  color: #2563eb;
+}
+
+/* PO Row */
+.po-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.po-row:last-child {
+  border-bottom: none;
+}
+
+/* PO Text */
+.po-text {
+  max-width: 65%;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Score Badge */
+.score {
+  font-weight: bold;
+  color: #111827;
+}
+
+/* Faculty Dropdown */
+select {
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
+
+/* Action Buttons */
+.actions {
+  margin-top: 20px;
+}
+
+.actions button {
+  margin-right: 10px;
+  background: #22c55e;
+}
+
+.actions button.secondary {
+  background: #8b5cf6;
+}
+
+/* Accuracy Box */
+.accuracy-box {
+  margin-top: 15px;
+  padding: 12px;
+  background: #ecfeff;
+  border-left: 4px solid #06b6d4;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Smooth Hover */
+.co-card:hover {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+/* ===============================
+   MATRIX STYLE
+================================ */
+
+.matrix-wrapper {
+  overflow-x: auto;
+  margin-top: 15px;
+}
+
+.matrix-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 1000px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.matrix-table th {
+  background: #0f172a;
+  color: white;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+}
+
+.matrix-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  vertical-align: middle;
+}
+
+.matrix-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.ai-level {
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.teacher-select {
+  width: 60px;
+  padding: 3px;
+  font-size: 12px;
+}
+
+/* ===============================
+ justification table
+================================ */
+
+.table-container{
+    max-height:350px;   /* 5-6 rows height */
+    overflow-y:auto;
+    border:1px solid #ddd;
+}
+
+/* table style */
+.justify-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+/* header sticky */
+.justify-table thead th{
+    position:sticky;
+    top:0;
+    background:#0f172a;
+    color:white;
+    z-index:2;
+}
+
+/* cell style */
+.justify-table th,
+.justify-table td{
+    padding:8px;
+    border:1px solid #ccc;
+    font-size:14px;
+}
+
+
+/* ===============================
+download pdf
+================================ */
+
+
+@media print{
+
+.sidebar{
+display:none;
+}
+
+.logout{
+display:none;
+}
+
+button{
+display:none;
+}
+
+body{
+background:white;
+}
+
+.layout{
+margin:0;
+}
+
+.content{
+width:100%;
+}
+
+}
+
+#pdfReport{
+width:100%;
+background:white;
+padding:20px;
+}
+
+#pdfReport h1{
+text-align:center;
+margin-bottom:20px;
+}
+
+#pdfReport table{
+width:100%;
+border-collapse:collapse;
+margin-bottom:20px;
+}
+
+#pdfReport th,
+#pdfReport td{
+border:1px solid #ccc;
+padding:8px;
+font-size:13px;
+}
+
+@media print{
+
+.sidebar{
+display:none;
+}
+
+button{
+display:none;
+}
+
+.layout{
+margin:0;
+}
+
+.content{
+width:100%;
+}
+
+}
+
+@media print {
+  .card {
+    page-break-inside: avoid;
+  }
+
+  .co-section {
+    page-break-after: always;
+  }
+}

@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+scikit-learn
+numpy
+pandas
+pymongo
+python-multipart
+Pillow
+easyocr
+pypdf
+sentence-transformers
+joblib
+bcrypt
+python-dotenv
+openpyxl

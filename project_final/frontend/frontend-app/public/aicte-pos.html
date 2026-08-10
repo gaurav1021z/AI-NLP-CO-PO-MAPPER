@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AICTE Program Outcomes</title>
+
+<style>
+
+/* RESET */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI, sans-serif;
+}
+
+body{
+background:#f3f4f6;
+}
+
+/* LAYOUT */
+
+.layout{
+display:flex;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:240px;
+background:white;
+height:100vh;
+padding:25px 20px;
+border-right:1px solid #e5e7eb;
+position:fixed;
+left:0;
+top:0;
+}
+
+/* PROFILE */
+
+.profile{
+text-align:center;
+margin-bottom:30px;
+}
+
+.avatar{
+width:70px;
+height:70px;
+background:#d1d5db;
+border-radius:50%;
+margin:auto;
+margin-bottom:10px;
+}
+
+/* MENU */
+
+.sidebar ul{
+list-style:none;
+margin-top:20px;
+}
+
+.sidebar ul li{
+padding:10px 12px;
+margin-bottom:8px;
+border-radius:8px;
+cursor:pointer;
+color:#374151;
+font-weight:500;
+}
+
+.sidebar ul li:hover{
+background:#f3f4f6;
+}
+
+.sidebar ul li.active{
+background:#22c55e;
+color:white;
+}
+
+/* LOGOUT */
+
+.logout{
+margin-top:20px;
+background:#ef4444;
+border:none;
+color:white;
+padding:10px;
+width:100%;
+border-radius:8px;
+cursor:pointer;
+}
+
+/* CONTENT */
+
+.content{
+margin-left:260px;
+padding:40px;
+}
+
+/* TITLE */
+
+.content h2{
+font-size:30px;
+margin-bottom:30px;
+color:#111827;
+}
+
+/* GRID */
+
+.card-row{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:28px;
+}
+
+/* CARD */
+
+.info-card{
+background:white;
+padding:24px;
+border-radius:14px;
+border:1px solid #e5e7eb;
+box-shadow:0 6px 18px rgba(0,0,0,0.05);
+transition:all 0.3s ease;
+}
+
+.info-card:hover{
+transform:translateY(-6px);
+box-shadow:0 12px 25px rgba(0,0,0,0.1);
+border-color:#3b82f6;
+}
+
+.info-card h4{
+color:#3b82f6;
+font-size:13px;
+margin-bottom:10px;
+}
+
+.info-card h3{
+font-size:18px;
+margin-bottom:10px;
+}
+
+.info-card p{
+color:#6b7280;
+font-size:14px;
+line-height:1.6;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1100px){
+
+.card-row{
+grid-template-columns:repeat(2,1fr);
+}
+
+}
+
+@media(max-width:700px){
+
+.sidebar{
+display:none;
+}
+
+.content{
+margin-left:0;
+}
+
+.card-row{
+grid-template-columns:1fr;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<script>
+
+const name = localStorage.getItem("facultyName");
+const loggedIn = localStorage.getItem("loggedIn");
+
+if(loggedIn !== "true"){
+window.location.href="login.html";
+}
+
+</script>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+<div class="profile">
+<div class="avatar"></div>
+<h3 id="facultyName">Faculty</h3>
+
+</div>
+
+<ul>
+<li onclick="location.href='dashboard.html'">Dashboard</li>
+<li onclick="location.href='analytics.html'">Analytics</li>
+<li onclick="location.href='aicte-pos.html'">AICTE POs</li>
+<li onclick="location.href='attainment.html'">Attainment</li>
+<li onclick="location.href='question-detection.html'">Question → CO Detection</li>
+<li onclick="location.href='addsubject.html'">Add Subject</li>
+</ul>
+
+<button class="logout" onclick="logout()">Logout</button>
+
+</aside>
+
+
+<!-- MAIN CONTENT -->
+
+<div class="content">
+
+<h2>AICTE Program Outcomes (POs)</h2>
+
+<div class="card-row">
+
+<div class="info-card">
+<h4>PO1</h4>
+<h3>Engineering Knowledge:</h3>
+<p>Apply knowledge of mathematics, natural science, computing, engineering fundamentals and an engineering specialization as specified in WK1 to WK4 respectively to develop to the solution of complex engineering problems.</p>
+</div>
+
+<div class="info-card">
+<h4>PO2</h4>
+<h3>Problem Analysis:</h3>
+<p>Identify, formulate, review research literature and analyze complex engineering problems reaching substantiated conclusions with consideration for sustainable development.</p>
+</div>
+
+<div class="info-card">
+<h4>PO3</h4>
+<h3>Design/Development of Solutions:</h3>
+<p> Design creative solutions for complex engineering problems and design/develop systems/components/processes to meet identified needs with consideration for the public health and safety, whole-life cost, net zero carbon, culture, society and environment as required.</p>
+</div>
+
+<div class="info-card">
+<h4>PO4</h4>
+<h3>Conduct Investigations of Complex Problems: </h3>
+<p>Conduct investigations of complex engineering problems using research-based knowledge including design of experiments, modelling, analysis & interpretation of data to provide valid conclusions.</p>
+</div>
+
+<div class="info-card">
+<h4>PO5</h4>
+<h3> Engineering Tool Usage: </h3>
+<p>Create, select and apply appropriate techniques, resources and modern engineering & IT tools, including prediction and modelling recognizing their limitations to solve complex engineering problems. </p>
+</div>
+
+<div class="info-card">
+<h4>PO6</h4>
+<h3>The Engineer and The World:</h3>
+<p>Analyze and evaluate societal and environmental aspects while solving complex engineering problems for its impact on sustainability with reference to economy, health, safety, legal framework, culture and environment.</p>
+</div>
+
+<div class="info-card">
+<h4>PO7</h4>
+<h3>Ethics:</h3>
+<p>Apply ethical principles and commit to professional ethics, human values, diversity and inclusion; adhere to national & international laws. </p>
+</div>
+
+<div class="info-card">
+<h4>PO8</h4>
+<h3>Individual and Collaborative Team work:</h3>
+<p>Function effectively as an individual, and as a member or leader in diverse/multi-disciplinary teams.
+</p>
+</div>
+
+<div class="info-card">
+<h4>PO9</h4>
+<h3>Communication: </h3>
+<p>Communicate effectively and inclusively within the engineering community and society at large, such as being able to comprehend and write effective reports and design documentation, make effective presentations considering cultural, language, and learning differences
+</p>
+</div>
+
+<div class="info-card">
+<h4>PO10</h4>
+<h3> Project Management and Finance: </h3>
+<p>Apply knowledge and understanding of engineering management principles and economic decision-making and apply these to one's own work, as a member and leader in a team, and to manage projects and in multidisciplinary environments.
+</p>
+</div>
+
+<div class="info-card">
+<h4>PO11</h4>
+<h3>Life-Long Learning:</h3>
+<p>Recognize the need for, and have the preparation and ability for <br>i) independent and life-long learning <br> ii) adaptability to new and emerging technologies and <br>iii) critical thinking in the broadest context of technological change.</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+document.getElementById("facultyName").innerText = name;
+
+function logout(){
+
+localStorage.clear();
+
+window.location.href="login.html";
+
+}
+
+</script>
+<script src="page-navigation.js"></script>
+
+</body>
+
+</html>

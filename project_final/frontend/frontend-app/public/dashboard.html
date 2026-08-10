@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CO–PO Mapping Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .course-details-card,
+    .mapping-mode-card{
+      padding: 28px;
+      border: 1px solid #e6edf7;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    }
+
+    .section-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:20px;
+      flex-wrap:wrap;
+    }
+
+    .section-head h3{
+      margin:0 0 6px;
+      font-size:20px;
+    }
+
+    .section-head p{
+      margin:0;
+      color:#5b677a;
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .mode-switch{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .mode-chip{
+      border:1px solid #cfd8e3;
+      background:#f8fbff;
+      color:#20324d;
+      padding:10px 16px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:600;
+      transition:all 0.2s ease;
+    }
+
+    .mode-chip.active{
+      background:#e8f1ff;
+      border-color:#3b82f6;
+      color:#1d4ed8;
+      box-shadow:0 0 0 3px rgba(59,130,246,0.12);
+    }
+
+    .entry-panel{
+      background:linear-gradient(180deg, #fbfdff 0%, #f7faff 100%);
+      border:1px solid #e2eaf5;
+      border-radius:18px;
+      padding:20px;
+    }
+
+    .field-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:16px;
+    }
+
+    .field-box{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .field-box label{
+      font-size:13px;
+      font-weight:700;
+      color:#24344d;
+      letter-spacing:0.02em;
+      text-transform:uppercase;
+    }
+
+    .dashboard-select,
+    .dashboard-input,
+    .dashboard-textarea{
+      width:100%;
+      border:1px solid #cfd8e3;
+      border-radius:14px;
+      background:#fff;
+      padding:14px 16px;
+      font-size:15px;
+      box-sizing:border-box;
+      transition:border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dashboard-select:focus,
+    .dashboard-input:focus,
+    .dashboard-textarea:focus{
+      outline:none;
+      border-color:#3b82f6;
+      box-shadow:0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    .helper-note{
+      margin-top:14px;
+      color:#5b677a;
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .preview-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .preview-card{
+      background:#fff;
+      border:1px solid #dbe5f1;
+      border-radius:16px;
+      padding:16px;
+      min-height:88px;
+    }
+
+    .preview-label{
+      display:block;
+      font-size:12px;
+      font-weight:700;
+      color:#64748b;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      margin-bottom:8px;
+    }
+
+    .preview-value{
+      color:#132238;
+      font-size:15px;
+      font-weight:600;
+      line-height:1.5;
+      word-break:break-word;
+    }
+
+    .mode-options{
+      display:flex;
+      gap:22px;
+      flex-wrap:wrap;
+      margin:10px 0 18px;
+    }
+
+    .mode-radio{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:#f8fbff;
+      border:1px solid #dbe5f1;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:600;
+      color:#20324d;
+    }
+
+    .mode-radio.active{
+      background:#e8fff8;
+      border-color:#10b981;
+      color:#047857;
+      box-shadow:0 0 0 3px rgba(16,185,129,0.14);
+    }
+
+    .mode-radio input{
+      margin:0;
+      transform:scale(1.1);
+    }
+
+    .mode-action{
+      appearance:none;
+      cursor:pointer;
+      font-size:15px;
+      line-height:1.2;
+    }
+
+    .mode-action.active{
+      background:#e8fff8;
+      border-color:#10b981;
+      color:#047857;
+      box-shadow:0 0 0 3px rgba(16,185,129,0.14);
+    }
+
+    .resume-result-card{
+      margin-bottom:20px;
+      background:linear-gradient(135deg, #eff6ff 0%, #f8fbff 100%);
+      border:1px solid #bfdbfe;
+      border-radius:18px;
+      padding:18px 20px;
+      display:none;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      flex-wrap:wrap;
+    }
+
+    .resume-result-card.show{
+      display:flex;
+    }
+
+    .resume-result-card h4{
+      margin:0 0 6px;
+      color:#1d4ed8;
+      font-size:18px;
+    }
+
+    .resume-result-card p{
+      margin:0;
+      color:#475569;
+      line-height:1.6;
+      font-size:14px;
+    }
+
+    .resume-result-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .resume-btn{
+      border:none;
+      border-radius:999px;
+      padding:11px 16px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .resume-btn.primary{
+      background:#2563eb;
+      color:#fff;
+    }
+
+    .resume-btn.secondary{
+      background:#e2e8f0;
+      color:#1e293b;
+    }
+
+    .mapping-grid{
+      display:grid;
+      grid-template-columns:1.35fr 1fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .text-panel{
+      background:#fbfdff;
+      border:1px solid #e2eaf5;
+      border-radius:18px;
+      padding:18px;
+    }
+
+    .panel-title{
+      margin:0 0 8px;
+      font-size:14px;
+      font-weight:700;
+      color:#24344d;
+      text-transform:uppercase;
+      letter-spacing:0.03em;
+    }
+
+    .panel-subtitle{
+      margin:0 0 14px;
+      font-size:13px;
+      color:#64748b;
+      line-height:1.6;
+    }
+
+    .ocr-upload-box{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      align-items:center;
+      justify-items:center;
+      background:linear-gradient(135deg, #eef6ff 0%, #f8fbff 100%);
+      border:2px dashed #60a5fa;
+      border-radius:16px;
+      padding:20px;
+      margin-bottom:14px;
+      min-height:155px;
+      text-align:center;
+      transition:border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .ocr-upload-box.hidden{
+      display:none;
+    }
+
+    .ocr-upload-box.drag-over{
+      background:linear-gradient(135deg, #dbeafe 0%, #ecfeff 100%);
+      border-color:#0ea5e9;
+      box-shadow:0 0 0 4px rgba(14,165,233,0.14);
+    }
+
+    .ocr-upload-box label{
+      display:block;
+      font-size:12px;
+      font-weight:700;
+      color:#1e3a8a;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      margin-bottom:8px;
+    }
+
+    .ocr-drop-title{
+      font-size:18px;
+      font-weight:800;
+      color:#0f2f5d;
+      margin-bottom:6px;
+    }
+
+    .ocr-drop-subtitle{
+      color:#53657f;
+      font-size:13px;
+      line-height:1.5;
+      margin-bottom:12px;
+    }
+
+    .ocr-upload-actions{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      width:100%;
+    }
+
+    .ocr-upload-box input[type="file"]{
+      max-width:380px;
+      background:#fff;
+      border:1px solid #d8e3f1;
+      border-radius:12px;
+      padding:10px;
+      box-sizing:border-box;
+      color:#334155;
+    }
+
+    .ocr-button{
+      border:none;
+      border-radius:12px;
+      padding:12px 16px;
+      background:#0f766e;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+      white-space:nowrap;
+      box-shadow:0 10px 20px rgba(15,118,110,0.16);
+    }
+
+    .ocr-button:disabled{
+      cursor:not-allowed;
+      opacity:0.65;
+      box-shadow:none;
+    }
+
+    .ocr-status{
+      grid-column:1 / -1;
+      min-height:20px;
+      color:#475569;
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .dashboard-textarea{
+      min-height:220px;
+      resize:vertical;
+      font-family:inherit;
+      line-height:1.7;
+    }
+
+    .primary-action{
+      margin-top:20px;
+      padding:14px 22px;
+      border:none;
+      border-radius:14px;
+      background:linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color:#fff;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 12px 24px rgba(37,99,235,0.18);
+    }
+
+    @media (max-width: 1100px){
+      .field-grid,
+      .preview-grid,
+      .mapping-grid{
+        grid-template-columns:1fr 1fr;
+      }
+    }
+
+    @media (max-width: 780px){
+      .field-grid,
+      .preview-grid,
+      .mapping-grid{
+        grid-template-columns:1fr;
+      }
+
+      .ocr-upload-box{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<script>
+  const name = localStorage.getItem("facultyName");
+  const loggedIn = localStorage.getItem("loggedIn");
+
+  if (loggedIn !== "true") {
+    window.location.href = "login.html";
+  }
+</script>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar"></div>
+      <h3 id="facultyName">Faculty</h3>
+    </div>
+
+   <ul>
+<li onclick="location.href='dashboard.html'">Dashboard</li>
+<li onclick="location.href='analytics.html'">Analytics</li>
+<li onclick="location.href='aicte-pos.html'">AICTE POs</li>
+<li onclick="location.href='attainment.html'">Attainment</li>
+<li onclick="location.href='question-detection.html'">Question → CO Detection</li>
+<li onclick="location.href='addsubject.html'">Add Subject</li>
+</ul>
+
+    <button class="logout" onclick="logout()">Logout</button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="content">
+
+    <section id="resumeResultCard" class="resume-result-card">
+      <div>
+        <h4>Last Mapping Result Available</h4>
+        <p id="resumeResultText">Your previous CO-PO result is ready to continue.</p>
+      </div>
+      <div class="resume-result-actions">
+        <button type="button" class="resume-btn primary" onclick="openLastResult()">Open Last Result</button>
+        <button type="button" class="resume-btn secondary" onclick="dismissLastResult()">Hide</button>
+      </div>
+    </section>
+
+    <header class="header">
+      <h1>Course Outcome & Program Outcome Mapping</h1>
+      <p>AI-based CO–PO Mapping Dashboard</p>
+    </header>
+
+    <!-- COURSE DETAILS -->
+    <section class="card course-details-card">
+      <div class="section-head">
+        <div>
+          <h3>Course Details</h3>
+          <p>Use a listed subject for auto-fill, or switch to manual entry when you want to add a completely new subject.</p>
+        </div>
+        <div class="mode-switch">
+          <button type="button" id="existingModeBtn" class="mode-chip active" onclick="setCourseEntryMode('existing')">Use Existing Subject</button>
+          <button type="button" id="manualModeBtn" class="mode-chip" onclick="setCourseEntryMode('manual')">Enter Manually</button>
+        </div>
+      </div>
+
+      <div id="existingSubjectPanel" class="entry-panel">
+        <div class="field-grid">
+          <div class="field-box">
+            <label for="dashboardSchema">Schema</label>
+            <select id="dashboardSchema" class="dashboard-select" onchange="handleDashboardSchemaChange()">
+              <option value="">Select Schema</option>
+              <option value="C">C-Scheme</option>
+              <option value="NEP">NEP</option>
+            </select>
+          </div>
+
+          <div class="field-box">
+            <label for="dashboardYear">Year</label>
+            <select id="dashboardYear" class="dashboard-select" onchange="loadDashboardSemesters()">
+              <option value="">Select Year</option>
+            </select>
+          </div>
+
+          <div class="field-box">
+            <label for="dashboardSemester">Semester</label>
+            <select id="dashboardSemester" class="dashboard-select" onchange="loadDashboardSubjects()">
+              <option value="">Select Semester</option>
+            </select>
+          </div>
+
+          <div class="field-box">
+            <label for="dashboardSubjectSelect">Subject</label>
+            <select id="dashboardSubjectSelect" class="dashboard-select" onchange="handleDashboardSubjectChange()">
+              <option value="">Select Subject</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="helper-note">
+          Auto-filled details will be used for mapping. If your subject is not listed here, switch to manual entry and type the details yourself.
+        </div>
+
+        <div class="preview-grid">
+          <div class="preview-card">
+            <span class="preview-label">Course Name</span>
+            <div class="preview-value" id="previewCourseName">-</div>
+          </div>
+          <div class="preview-card">
+            <span class="preview-label">Course Code</span>
+            <div class="preview-value" id="previewCourseCode">-</div>
+          </div>
+          <div class="preview-card">
+            <span class="preview-label">Semester</span>
+            <div class="preview-value" id="previewSemester">-</div>
+          </div>
+          <div class="preview-card">
+            <span class="preview-label">Subject</span>
+            <div class="preview-value" id="previewSubject">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="manualSubjectPanel" class="entry-panel" style="display:none; margin-top:14px;">
+        <div class="field-grid">
+          <div class="field-box">
+            <label for="manualCourseName">Course Name</label>
+            <input id="manualCourseName" class="dashboard-input" placeholder="Enter course name">
+          </div>
+          <div class="field-box">
+            <label for="manualCourseCode">Course Code</label>
+            <input id="manualCourseCode" class="dashboard-input" placeholder="Enter course code">
+          </div>
+          <div class="field-box">
+            <label for="manualSemester">Semester</label>
+            <input id="manualSemester" class="dashboard-input" placeholder="Enter semester">
+          </div>
+          <div class="field-box">
+            <label for="manualSubject">Subject</label>
+            <input id="manualSubject" class="dashboard-input" placeholder="Enter subject name">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CO + PO INPUT -->
+    <section class="card mapping-mode-card">
+      <div class="section-head" style="margin-bottom:14px;">
+        <div>
+          <h3>Mapping Mode</h3>
+          <p>Enter COs manually by default. If needed, switch to Image / PDF Extract and fill the same CO box directly from the syllabus file.</p>
+        </div>
+      </div>
+
+      <div class="mode-options">
+        <label class="mode-radio">
+          <input type="radio" name="poMode" checked onclick="togglePO(false)">
+          AICTE POs
+        </label>
+
+        <label class="mode-radio">
+          <input type="radio" name="poMode" onclick="togglePO(true)">
+          Custom POs
+        </label>
+
+        <label id="extractModeOption" class="mode-radio mode-action">
+          <input type="radio" id="extractModeRadio" name="coAssistMode" onclick="toggleExtractPanel(true)">
+          Image / PDF Extract
+        </label>
+      </div>
+
+      <div
+        id="syllabusDropZone"
+        class="ocr-upload-box hidden"
+        ondragover="handleSyllabusDragOver(event)"
+        ondragleave="handleSyllabusDragLeave(event)"
+        ondrop="handleSyllabusDrop(event)"
+      >
+        <div>
+          <label for="syllabusImageInput">Extract COs From Syllabus PDF / Image</label>
+          <div class="ocr-drop-title">Drop syllabus PDF or image here</div>
+          <div class="ocr-drop-subtitle">Upload the original syllabus file containing the Course Outcomes section. The extracted COs will fill the course outcome box as line-wise text.</div>
+        </div>
+        <div class="ocr-upload-actions">
+          <input id="syllabusImageInput" type="file" accept="image/*,.pdf,application/pdf" onchange="handleSyllabusImageSelect()">
+          <button type="button" id="extractCoButton" class="ocr-button" onclick="extractCourseOutcomesFromImage()">
+            Extract COs
+          </button>
+        </div>
+        <div id="ocrStatus" class="ocr-status">Select Image / PDF Extract only when you want to pull Course Outcomes directly from a syllabus PDF or image.</div>
+      </div>
+
+      <div class="mapping-grid">
+        <div class="text-panel">
+          <div class="panel-title">Course Outcomes</div>
+          <p class="panel-subtitle">Enter one CO per line, or paste numbered CO text like 1, 2, 3, 4, 5. If you choose Image / PDF Extract above, the detected CO lines will appear here.</p>
+          <textarea id="coInput" class="dashboard-textarea" placeholder="Example:
+CO1: Understand database design concepts
+CO2: Analyze query processing techniques
+CO3: Design relational schema for applications
+
+or
+
+1 Understand database design concepts
+2 Analyze query processing techniques
+3 Design relational schema for applications"></textarea>
+        </div>
+
+        <div class="text-panel" id="poPanel" style="display:none;">
+          <div class="panel-title">Custom Program Outcomes</div>
+          <p class="panel-subtitle">Enter one custom PO on each line only if you are not using AICTE POs.</p>
+          <textarea id="poInput" class="dashboard-textarea" placeholder="Enter custom POs (one per line)"></textarea>
+        </div>
+      </div>
+
+      <button type="button" class="primary-action" onclick="generateMapping()">
+        Submit & Generate Mapping
+      </button>
+    </section>
+
+    <!-- AI PROCESS -->
+    <section class="process">
+      <h3>AI Mapping Process</h3>
+      <ol>
+        <li>CO normalization using NLP</li>
+        <li>TF-IDF cosine similarity</li>
+        <li>BERT cosine similarity</li>
+        <li>Bloom keyword and level matching</li>
+        <li>All PO ranking and mapped PO selection</li>
+        <li>Level assignment</li>
+        <li>Faculty feedback learning</li>
+      </ol>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  document.getElementById("facultyName").innerText = name;
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = "login.html";
+  }
+</script>
+
+<script src="script.js"></script>
+<script src="page-navigation.js"></script>
+
+</body>
+</html>

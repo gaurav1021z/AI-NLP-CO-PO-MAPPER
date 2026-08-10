@@ -1,0 +1,1785 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>CO-PO Mapping Result</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+body{
+    margin:0;
+    padding:0;
+    background:#f4f7fb;
+}
+
+/* ðŸ”´ SAFE highlight (UI break nahi) */
+.highlight-red td{
+    background-color: #ffe5e5 !important;
+}
+.highlight-red td:first-child{
+    border-left: 4px solid red;
+}
+
+.highlight-focus td{
+    background-color:#fff8db !important;
+}
+
+.highlight-focus td:first-child{
+    border-left:4px solid #f59e0b;
+}
+
+.table-container{
+    overflow-x:auto;
+    overflow-y:auto;
+    min-height:460px;
+    max-height:620px;
+    border:1px solid #dbe3ef;
+    border-radius:12px;
+    background:#fff;
+}
+
+.justify-table{
+    width:100%;
+    min-width:1280px;
+    border-collapse:collapse;
+    background:#fff;
+}
+
+.justify-table th{
+    background:#0d1b2a;
+    color:#fff;
+    padding:14px 16px;
+    font-size:15px;
+    text-align:left;
+    white-space:nowrap;
+}
+
+.justify-table td{
+    padding:16px;
+    border:1px solid #dde4ee;
+    vertical-align:top;
+    font-size:15px;
+    line-height:1.6;
+    background:#fff;
+}
+
+.justify-table tr:nth-child(even) td{
+    background:#f9fbff;
+}
+
+.col-co,
+.col-po,
+.col-bloom,
+.col-level,
+.col-confidence{
+    white-space:nowrap;
+    font-weight:600;
+}
+
+.co-code{
+    font-size:16px;
+    font-weight:700;
+    color:#0f2f5d;
+    margin-bottom:8px;
+}
+
+.co-objective{
+    white-space:normal;
+    color:#334155;
+    font-size:14px;
+    line-height:1.7;
+    font-weight:500;
+}
+
+.col-justification{
+    min-width:620px;
+}
+
+.justification-block{
+    display:grid;
+    gap:10px;
+}
+
+.justification-title{
+    font-size:13px;
+    font-weight:700;
+    color:#21304b;
+    margin-bottom:2px;
+}
+
+.justification-option{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:12px 14px;
+    border:1px solid #cfd8e3;
+    border-radius:10px;
+    background:#fff;
+    cursor:pointer;
+    transition:all 0.2s ease;
+}
+
+.justification-option.selected{
+    border-color:#2d7ff9;
+    background:#eef5ff;
+    box-shadow:0 0 0 1px rgba(45,127,249,0.12);
+}
+
+.justification-option input{
+    margin-top:4px;
+    transform:scale(1.1);
+}
+
+.justification-option span{
+    line-height:1.6;
+}
+
+.justification-editor{
+    width:100%;
+    padding:12px;
+    border:1px solid #cfd8e3;
+    border-radius:10px;
+    resize:vertical;
+    font-family:inherit;
+    font-size:14px;
+    box-sizing:border-box;
+}
+
+.report-meta-card{
+    padding:24px 26px;
+}
+
+.report-brand{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+    margin-bottom:18px;
+}
+
+.report-brand img{
+    width:min(100%, 760px);
+    max-height:110px;
+    object-fit:contain;
+}
+
+.report-brand h3{
+    margin:0;
+    font-size:18px;
+    color:#142033;
+}
+
+.report-brand p{
+    margin:0;
+    text-align:center;
+    color:#4b5563;
+    line-height:1.6;
+    font-size:14px;
+}
+
+.meta-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:14px;
+}
+
+.meta-item{
+    background:#f8fbff;
+    border:1px solid #dbe5f1;
+    border-radius:14px;
+    padding:14px 16px;
+}
+
+.meta-label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-bottom:6px;
+}
+
+.meta-value{
+    color:#142033;
+    font-size:15px;
+    font-weight:600;
+    line-height:1.5;
+    word-break:break-word;
+}
+
+.meta-control{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid #cfd8e3;
+    border-radius:12px;
+    background:#fff;
+    font-size:14px;
+    box-sizing:border-box;
+}
+
+.meta-control:focus{
+    outline:none;
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,0.12);
+}
+
+.meta-check{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:10px;
+    font-size:13px;
+    color:#334155;
+    font-weight:600;
+}
+
+.meta-note{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid #dbe5f1;
+    background:#f8fbff;
+    color:#475569;
+    font-size:13px;
+    line-height:1.6;
+}
+
+.ai-level-note{
+    margin:0 0 14px;
+    padding:12px 14px;
+    border:1px solid #bfdbfe;
+    border-radius:12px;
+    background:#eff6ff;
+    color:#1e3a8a;
+    font-size:13px;
+    font-weight:600;
+    line-height:1.6;
+}
+
+.meta-choice-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+    flex-wrap:wrap;
+}
+
+.meta-choice-btn{
+    border:1px solid #cfd8e3;
+    background:#fff;
+    color:#334155;
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.meta-choice-btn.active.accept{
+    background:#ecfdf5;
+    color:#047857;
+    border-color:#10b981;
+}
+
+.meta-choice-btn.active.reject{
+    background:#fff1f2;
+    color:#be123c;
+    border-color:#fb7185;
+}
+
+.meta-wide{
+    grid-column:span 3;
+}
+
+.co-input-list{
+    margin:0;
+    padding-left:20px;
+}
+
+.co-input-list li{
+    margin:6px 0;
+    color:#334155;
+    line-height:1.6;
+}
+
+@media (max-width: 900px){
+    .meta-grid{
+        grid-template-columns:1fr;
+    }
+
+    .meta-wide{
+        grid-column:auto;
+    }
+}
+
+.report-print-overlay{
+    position:fixed;
+    inset:0;
+    z-index:10000;
+    background:rgba(15,23,42,0.56);
+    padding:18px;
+    overflow:auto;
+}
+
+.report-print-overlay.hidden{
+    display:none;
+}
+
+.report-print-shell{
+    max-width:1180px;
+    margin:0 auto;
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 24px 60px rgba(15,23,42,0.24);
+    overflow:hidden;
+}
+
+.report-preview-toolbar{
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    padding:16px 18px;
+    border-bottom:1px solid #dbe5f1;
+    background:#f8fbff;
+}
+
+.report-preview-toolbar button{
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700;
+    font-size:14px;
+    padding:10px 16px;
+}
+
+.report-preview-print{
+    background:#2563eb;
+    color:#fff;
+}
+
+.report-preview-close{
+    background:#e2e8f0;
+    color:#1e293b;
+}
+
+.report-preview-body{
+    padding:18px;
+    background:#eef2f7;
+}
+
+body.print-report-mode{
+    background:#fff !important;
+}
+
+@media print{
+    body.print-report-mode *{
+        visibility:hidden !important;
+    }
+
+    body.print-report-mode #reportPdfPreviewOverlay,
+    body.print-report-mode #reportPdfPreviewOverlay *{
+        visibility:visible !important;
+    }
+
+    body.print-report-mode #reportPdfPreviewOverlay{
+        position:absolute !important;
+        inset:0 !important;
+        background:#fff !important;
+        padding:0 !important;
+        overflow:visible !important;
+    }
+
+    body.print-report-mode .report-preview-toolbar{
+        display:none !important;
+    }
+
+    body.print-report-mode .report-print-shell{
+        box-shadow:none !important;
+        border-radius:0 !important;
+        max-width:none !important;
+    }
+
+    body.print-report-mode .report-preview-body{
+        background:#fff !important;
+        padding:0 !important;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<script>
+if(localStorage.getItem("loggedIn") !== "true"){
+window.location.href="login.html";
+}
+</script>
+
+<div class="layout">
+
+<aside class="sidebar">
+<div class="profile">
+<div class="avatar"></div>
+<h3 id="facultyName"></h3>
+</div>
+
+<ul>
+<li onclick="location.href='dashboard.html'">Dashboard</li>
+<li onclick="location.href='analytics.html'">Analytics</li>
+<li onclick="location.href='aicte-pos.html'">AICTE POs</li>
+<li onclick="location.href='attainment.html'">Attainment</li>
+<li onclick="location.href='question-detection.html'">Question â†’ CO Detection</li>
+<li onclick="location.href='addsubject.html'">Add Subject</li>
+</ul>
+
+<button class="logout" onclick="logout()">Logout</button>
+</aside>
+
+<main class="content" id="reportContent">
+
+<header class="header">
+<h1>CO-PO Mapping Report</h1>
+<p>AI Generated Mapping with Faculty Validation</p>
+</header>
+
+<section class="card report-meta-card" id="reportMetaCard"></section>
+
+<section class="card">
+<h3>CO-PO Mapping Justification</h3>
+<p class="ai-level-note">AI Level Range: 0-39% = Level 1, 40-59% = Level 2, 60%+ = Level 3.</p>
+
+<div class="table-container">
+<table class="justify-table">
+<thead>
+<tr>
+<th>CO / Outcome</th>
+<th>PO</th>
+<th>Bloom</th>
+<th>AI Level</th>
+<th>Confidence</th>
+<th>Justification</th>
+</tr>
+</thead>
+<tbody id="justificationBody"></tbody>
+</table>
+</div>
+</section>
+
+<section class="card">
+<h3>CO-PO Mapping Matrix (AI + Faculty)</h3>
+
+<div class="matrix-container">
+<table id="matrixTable" class="matrix-table"></table>
+</div>
+
+<br>
+<button onclick="saveFacultyRatings()" class="btn-save">Save Faculty Ratings</button>
+<button onclick="downloadPDF()" class="btn-download">Print / Save as PDF</button>
+
+</section>
+
+<section class="card">
+<h3>CO-PO Analytics</h3>
+
+<label>Data Source:</label>
+<select id="dataSource">
+<option value="ai">AI Mapping</option>
+<option value="faculty">Faculty Mapping</option>
+</select>
+
+<button onclick="generateGraph()" class="btn-save">Generate Graph</button>
+
+<canvas id="chartCanvas" height="120"></canvas>
+</section>
+
+</main>
+</div>
+
+<div id="reportPdfPreviewOverlay" class="report-print-overlay hidden">
+    <div class="report-print-shell">
+        <div class="report-preview-toolbar">
+            <button type="button" class="report-preview-print" onclick="triggerReportPrint()">Print / Save as PDF</button>
+            <button type="button" class="report-preview-close" onclick="closeReportPrintPreview()">Close</button>
+        </div>
+        <div class="report-preview-body" id="reportPdfPreviewContent"></div>
+    </div>
+</div>
+
+<script>
+
+/* ========================= */
+let mappingData = null;
+const BASE_URL =
+window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "http://127.0.0.1:9000";
+const REPORT_LOGO_SRC = new URL("watumull-banner.jpg", window.location.href).href;
+const REPORT_META_STORAGE_KEY = "reportMetaCustomization";
+const ACADEMIC_YEAR_OPTIONS = ["1st Half 2025-2026", "2nd Half 2025-26", "Winter 2025-2026", "Summer2025-2026"];
+window.__pageResetKeys = ["reportMetaCustomization", "mappingResult", "mappingId", "facultyData"];
+
+function normalizeLoadedMappingData(data, fallbackId = ""){
+if(!data || typeof data !== "object"){
+  return null;
+}
+
+return {
+  ...data,
+  id: data.id || data._id || fallbackId || ""
+};
+}
+
+function applyLoadedMappingData(data){
+if(!data){
+  return;
+}
+
+mappingData = data;
+const meta = getReportMetadata(mappingData);
+localStorage.setItem("facultyName", meta.faculty_name);
+
+const facultyNode = document.getElementById("facultyName");
+if(facultyNode){
+  facultyNode.textContent = meta.faculty_name;
+}
+
+if(mappingData.id){
+  localStorage.setItem("mappingId", mappingData.id);
+}
+
+localStorage.setItem("mappingResult", JSON.stringify(mappingData));
+render(mappingData);
+}
+
+function escapeHtml(value){
+return String(value ?? "")
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;")
+  .replace(/'/g, "&#39;");
+}
+
+function justificationKey(coCode, poCode){
+return `${coCode}-${poCode}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+}
+
+function formatDateDisplay(value){
+if(!value){
+  return "-";
+}
+
+const date = new Date(value);
+
+if(Number.isNaN(date.getTime())){
+  return value;
+}
+
+return date.toLocaleString("en-IN", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit"
+});
+}
+
+function toInputDateValue(value){
+if(!value){
+  return "";
+}
+
+if(/^\d{4}-\d{2}-\d{2}$/.test(String(value).trim())){
+  return String(value).trim();
+}
+
+const date = new Date(value);
+if(Number.isNaN(date.getTime())){
+  return "";
+}
+
+const year = date.getFullYear();
+const month = String(date.getMonth() + 1).padStart(2, "0");
+const day = String(date.getDate()).padStart(2, "0");
+return `${year}-${month}-${day}`;
+}
+
+function toInputDateTimeValue(value){
+if(!value){
+  return "";
+}
+
+const raw = String(value).trim();
+if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)){
+  return raw;
+}
+
+const date = new Date(value);
+if(Number.isNaN(date.getTime())){
+  return "";
+}
+
+const year = date.getFullYear();
+const month = String(date.getMonth() + 1).padStart(2, "0");
+const day = String(date.getDate()).padStart(2, "0");
+const hours = String(date.getHours()).padStart(2, "0");
+const minutes = String(date.getMinutes()).padStart(2, "0");
+return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function formatReportDateTime(value){
+if(!value){
+  return "-";
+}
+
+const date = new Date(value);
+if(Number.isNaN(date.getTime())){
+  return value;
+}
+
+return date.toLocaleDateString("en-IN", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit"
+});
+}
+
+function getStoredReportCustomization(){
+try{
+  const local = localStorage.getItem(REPORT_META_STORAGE_KEY);
+  return local ? JSON.parse(local) : {};
+}catch(error){
+  return {};
+}
+}
+
+function saveReportCustomization(patch = {}){
+const current = {
+  ...(mappingData?.report_customization || {}),
+  ...getStoredReportCustomization(),
+  ...patch
+};
+
+if(mappingData){
+  mappingData.report_customization = current;
+  localStorage.setItem("mappingResult", JSON.stringify(mappingData));
+}
+
+localStorage.setItem(REPORT_META_STORAGE_KEY, JSON.stringify(current));
+return current;
+}
+
+function getReportMetadata(data){
+const storedCustomization = getStoredReportCustomization();
+const customization = {
+  ...(data?.report_customization || {}),
+  ...storedCustomization
+};
+const defaultDateTime = toInputDateTimeValue(data?.generated_at || new Date().toISOString());
+const reportDateTime = customization.report_datetime || defaultDateTime;
+
+return {
+  faculty_name: data?.faculty_name || localStorage.getItem("facultyName") || "Faculty",
+  course_name: data?.course_name || "-",
+  course_code: data?.course_code || "-",
+  semester: data?.semester || "-",
+  subject: data?.subject || "-",
+  academic_year: customization.academic_year || "",
+  report_datetime: reportDateTime,
+  report_datetime_display: formatReportDateTime(reportDateTime),
+  datetime_status: customization.datetime_status || "",
+  logo_src: REPORT_LOGO_SRC
+};
+}
+
+function updateReportMetaSettings(){
+const dateTimeInput = document.getElementById("reportDateTimeInput");
+const academicYearSelect = document.getElementById("academicYearSelect");
+const statusNode = document.getElementById("reportDateTimeStatus");
+
+if(!dateTimeInput || !academicYearSelect){
+  return;
+}
+
+saveReportCustomization({
+  report_datetime: dateTimeInput.value.trim(),
+  academic_year: academicYearSelect.value.trim(),
+  datetime_status: statusNode?.value || ""
+});
+}
+
+function setDateTimeStatus(status){
+const statusNode = document.getElementById("reportDateTimeStatus");
+if(!statusNode){
+  return;
+}
+
+statusNode.value = status;
+document.querySelectorAll(".meta-choice-btn[data-status]").forEach(button => {
+  const isActive = button.dataset.status === status;
+  button.classList.toggle("active", isActive);
+});
+updateReportMetaSettings();
+}
+
+function validateReportMetaForPdf(showAlert = true){
+updateReportMetaSettings();
+const meta = getReportMetadata(mappingData);
+
+if(!meta.academic_year){
+  if(showAlert){
+    alert("Please select Academic Year before generating the PDF report.");
+  }
+  return null;
+}
+
+if(!meta.report_datetime){
+  if(showAlert){
+    alert("Please enter report date and time before generating the PDF report.");
+  }
+  return null;
+}
+
+if(meta.datetime_status === "accepted" && !meta.report_datetime){
+  if(showAlert){
+    alert("Please enter report date and time before generating the PDF report.");
+  }
+  return null;
+}
+
+return meta;
+}
+
+function renderReportMeta(data){
+const container = document.getElementById("reportMetaCard");
+
+if(!container){
+  return;
+}
+
+const meta = getReportMetadata(data);
+const courseOutcomes = Array.isArray(data?.course_outcomes)
+  ? data.course_outcomes.filter(Boolean)
+  : [];
+const customPos = Array.isArray(data?.custom_pos)
+  ? data.custom_pos.filter(Boolean)
+  : [];
+
+container.innerHTML = `
+  <div class="report-brand">
+    <img src="${meta.logo_src}" alt="Watumull Banner Logo">
+    <h3>CO-PO Mapping Details</h3>
+    <p>
+      Subject, faculty login, course details, and entered CO inputs are saved with this mapping report.
+    </p>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-item">
+      <span class="meta-label">Faculty Login</span>
+      <div class="meta-value">${escapeHtml(meta.faculty_name)}</div>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Subject</span>
+      <div class="meta-value">${escapeHtml(meta.subject)}</div>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Semester</span>
+      <div class="meta-value">${escapeHtml(meta.semester)}</div>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Course Name</span>
+      <div class="meta-value">${escapeHtml(meta.course_name)}</div>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Course Code</span>
+      <div class="meta-value">${escapeHtml(meta.course_code)}</div>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Academic Year</span>
+      <select id="academicYearSelect" class="meta-control" onchange="updateReportMetaSettings()">
+        <option value="">Select Academic Year</option>
+        ${ACADEMIC_YEAR_OPTIONS.map(option => `<option value="${option}" ${meta.academic_year === option ? "selected" : ""}>${option}</option>`).join("")}
+      </select>
+    </div>
+    <div class="meta-item meta-wide">
+      <span class="meta-label">Report Date & Time</span>
+      <input id="reportDateTimeInput" class="meta-control" type="datetime-local" value="${escapeHtml(meta.report_datetime)}" onchange="updateReportMetaSettings()">
+      <input id="reportDateTimeStatus" type="hidden" value="${escapeHtml(meta.datetime_status)}">
+      <div class="meta-choice-row">
+        <button type="button" class="meta-choice-btn accept ${meta.datetime_status === "accepted" ? "active accept" : ""}" data-status="accepted" onclick="setDateTimeStatus('accepted')">✔ Accepted</button>
+        <button type="button" class="meta-choice-btn reject ${meta.datetime_status === "rejected" ? "active reject" : ""}" data-status="rejected" onclick="setDateTimeStatus('rejected')">✘ Not Accepted</button>
+      </div>
+    </div>
+    <div class="meta-item meta-wide">
+      <span class="meta-label">Entered Course Outcomes</span>
+      <div class="meta-value">
+        ${
+          courseOutcomes.length
+            ? `<ol class="co-input-list">${courseOutcomes.map(co => `<li>${escapeHtml(co)}</li>`).join("")}</ol>`
+            : escapeHtml(data?.course_outcomes_input_raw || "-")
+        }
+      </div>
+    </div>
+    ${
+      customPos.length
+        ? `
+    <div class="meta-item meta-wide">
+      <span class="meta-label">Custom POs Entered</span>
+      <div class="meta-value">
+        <ol class="co-input-list">${customPos.map(po => `<li>${escapeHtml(po)}</li>`).join("")}</ol>
+      </div>
+    </div>
+    `
+        : ""
+    }
+    <div class="meta-item meta-wide">
+      <div class="meta-note">
+        Academic Year is required before PDF generation. Report Date & Time will appear in the PDF only when the teacher marks it as Accepted.
+      </div>
+    </div>
+  </div>
+`;
+}
+
+function formatBloomDisplay(label){
+const mapping = {
+  "Remember": 1,
+  "Understand": 2,
+  "Apply": 3,
+  "Analyze": 4,
+  "Evaluate": 5,
+  "Create": 6
+};
+
+const cleanLabel = String(label || "").trim();
+const level = mapping[cleanLabel];
+return level ? `${level}-${cleanLabel}` : cleanLabel || "-";
+}
+
+function getjustificationOptions(mapping){
+const raw = Array.isArray(mapping.justification_options)
+  ? mapping.justification_options
+  : (Array.isArray(mapping.reason_options) ? mapping.reason_options : []);
+const options = raw
+  .map((option, index) => {
+    if(typeof option === "string"){
+      return { label: "", text: option };
+    }
+    return {
+      label: option?.label || "",
+      text: option?.text || ""
+    };
+  })
+  .filter(option => option.text);
+
+const selectedText = mapping.justification || mapping.reason || "";
+
+if(selectedText && !options.some(option => option.text === selectedText)){
+  options.unshift({ label: "", text: selectedText });
+}
+
+if(options.length === 0){
+  options.push({
+    label: "",
+    text: "justification could not be generated for this mapping."
+  });
+}
+
+return options.filter((option, index, array) =>
+  array.findIndex(item => item.text === option.text) === index
+);
+}
+
+function getSelectedjustification(mapping){
+const options = getjustificationOptions(mapping);
+const parsedIndex = Number(
+  mapping.selected_justification_index ?? mapping.selected_reason_index
+);
+const selectedIndex = Number.isInteger(parsedIndex) ? parsedIndex : 0;
+return options[Math.min(selectedIndex, options.length - 1)] || options[0];
+}
+
+function normalizejustificationOptions(options){
+return (options || []).map((option, index) => {
+  if(typeof option === "string"){
+    return { label: "", text: option };
+  }
+
+  return {
+    label: option?.label || "",
+    text: option?.text || ""
+  };
+}).filter(option => option.text);
+}
+
+function findMapping(coCode, poCode){
+if(!mappingData || !Array.isArray(mappingData.results)) return null;
+
+for(const co of mappingData.results){
+  if(co.co !== coCode) continue;
+  for(const mapping of co.mapping || []){
+    if(mapping.po_code === poCode){
+      return mapping;
+    }
+  }
+}
+
+return null;
+}
+
+function getPONumber(poCode){
+const match = String(poCode || "").match(/(\d+)/);
+return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
+}
+
+function sortMappingsByPO(mappings){
+return [...(Array.isArray(mappings) ? mappings : [])].sort((a, b) => {
+  return getPONumber(a?.po_code) - getPONumber(b?.po_code);
+});
+}
+
+function renderjustificationPicker(coCode, mapping){
+const options = getjustificationOptions(mapping);
+const selectedOption = getSelectedjustification(mapping);
+const selectedIndex = Math.max(
+  options.findIndex(option => option.text === selectedOption.text),
+  0
+);
+const key = justificationKey(coCode, mapping.po_code);
+
+return `
+<div class="justification-block">
+  <div class="justification-title">
+    Select Generated Justification
+  </div>
+  <div style="display:grid; gap:10px; margin-bottom:12px;">
+    ${options.map((option, index) => `
+      <label class="justification-option ${index===selectedIndex ? "selected" : ""}">
+        <input
+          type="radio"
+          name="justification-choice-${key}"
+          value="${index}"
+          ${index===selectedIndex ? "checked" : ""}
+          onchange="selectjustificationOption('${coCode}','${mapping.po_code}', ${index})"
+        >
+        <span>${escapeHtml(option.text)}</span>
+      </label>
+    `).join("")}
+  </div>
+  <div class="justification-title">
+    Edit / Add Teacher Justification
+  </div>
+  <textarea
+    id="manual-justification-${key}"
+    rows="3"
+    placeholder="Enter custom teacher justification here"
+    class="justification-editor"
+  >${escapeHtml(selectedOption.text)}</textarea>
+  <div>
+    <button
+      type="button"
+      class="btn-save"
+      style="padding:8px 12px; font-size:12px;"
+      onclick="saveManualjustification('${coCode}','${mapping.po_code}')"
+    >
+      Save Custom Justification
+    </button>
+  </div>
+</div>
+`;
+}
+
+async function savejustificationUpdate(coCode, poCode, selectedIndex, selectedOption, justificationOptions){
+const mappingId = localStorage.getItem("mappingId");
+
+if(!mappingId || !selectedOption){
+  return false;
+}
+
+const normalizedOptions = normalizejustificationOptions(justificationOptions);
+
+const res = await fetch(`${BASE_URL}/update-justification`,{
+  method:"POST",
+  headers:{ "Content-Type":"application/json" },
+  body: JSON.stringify({
+    id: mappingId,
+    co: coCode,
+    po: poCode,
+    justification: selectedOption.text,
+    selected_justification_index: selectedIndex,
+    justification_options: normalizedOptions
+  })
+});
+
+if(!res.ok){
+  throw new Error("Failed to save justification");
+}
+
+return true;
+}
+
+async function selectjustificationOption(coCode, poCode, selectedIndex){
+const mapping = findMapping(coCode, poCode);
+if(!mapping) return;
+
+const options = getjustificationOptions(mapping);
+const selectedOption = options[selectedIndex] || options[0];
+
+try{
+  await savejustificationUpdate(coCode, poCode, selectedIndex, selectedOption, options);
+
+  mapping.justification = selectedOption.text;
+  mapping.reason = selectedOption.text;
+  mapping.selected_justification_index = selectedIndex;
+  mapping.selected_reason_index = selectedIndex;
+  mapping.justification_options = normalizejustificationOptions(options);
+  mapping.reason_options = normalizejustificationOptions(options);
+  localStorage.setItem("mappingResult", JSON.stringify(mappingData));
+  render(mappingData);
+}catch(error){
+  console.error(error);
+  alert("Unable to save selected justification.");
+}
+}
+
+async function saveManualjustification(coCode, poCode){
+const mapping = findMapping(coCode, poCode);
+if(!mapping) return;
+
+const key = justificationKey(coCode, poCode);
+const textarea = document.getElementById(`manual-justification-${key}`);
+const customText = textarea ? textarea.value.trim() : "";
+
+if(!customText){
+  alert("Please enter a custom justification first.");
+  return;
+}
+
+const options = getjustificationOptions(mapping);
+let selectedIndex = options.findIndex(option => option.text === customText);
+let updatedOptions = normalizejustificationOptions(options);
+
+if(selectedIndex === -1){
+  updatedOptions.push({
+    label: "Teacher justification",
+    text: customText
+  });
+  selectedIndex = updatedOptions.length - 1;
+}
+
+const selectedOption = updatedOptions[selectedIndex];
+
+try{
+  await savejustificationUpdate(coCode, poCode, selectedIndex, selectedOption, updatedOptions);
+
+  mapping.justification = customText;
+  mapping.reason = customText;
+  mapping.selected_justification_index = selectedIndex;
+  mapping.selected_reason_index = selectedIndex;
+  mapping.justification_options = updatedOptions;
+  mapping.reason_options = updatedOptions;
+  localStorage.setItem("mappingResult", JSON.stringify(mappingData));
+  render(mappingData);
+  alert("Custom teacher justification saved successfully.");
+}catch(error){
+  console.error(error);
+  alert("Unable to save custom teacher justification.");
+}
+}
+
+function getPOList(data){
+const poCodes = [
+...(data.po_catalog || []).map(po => po.code),
+...data.results.flatMap(co => co.mapping.map(m => m.po_code))
+];
+
+return Array.from(new Set(poCodes)).sort((a,b)=>{
+const aNum = parseInt(String(a).replace("PO",""), 10);
+const bNum = parseInt(String(b).replace("PO",""), 10);
+return aNum - bNum;
+});
+}
+
+function getStoredFacultyValue(coCode, poCode, aiLevel){
+const savedRatings = Array.isArray(mappingData?.faculty_ratings) ? mappingData.faculty_ratings : [];
+const existing = savedRatings.find(item => item.co === coCode && item.po === poCode);
+
+if(!existing){
+  return "";
+}
+
+const value = existing.faculty ?? existing.faculty_level ?? aiLevel;
+return value ? String(value) : "";
+}
+
+function collectFacultyRatingsFromInputs(){
+const ratings = [];
+
+document.querySelectorAll(".teacher-select").forEach(selectNode => {
+  const ai = parseInt(selectNode.dataset.ai, 10);
+  const selectedValue = parseInt(selectNode.value, 10);
+
+  ratings.push({
+    co: selectNode.dataset.co,
+    po: selectNode.dataset.po,
+    ai,
+    faculty: selectedValue || ai
+  });
+});
+
+return ratings;
+}
+
+function applyJustificationHighlights(ratings = [], activePair = null){
+document.querySelectorAll("#justificationBody tr").forEach(row => {
+  row.classList.remove("highlight-red", "highlight-focus");
+
+  const co = row.dataset.co;
+  const po = row.dataset.po;
+  const match = ratings.find(item => item.co === co && item.po === po);
+
+  if(match && match.faculty !== match.ai){
+    row.classList.add("highlight-red");
+  }
+
+  if(activePair && activePair.co === co && activePair.po === po){
+    row.classList.add("highlight-focus");
+  }
+});
+}
+
+function handleMatrixSelectionChange(selectNode){
+if(!selectNode) return;
+
+const ratings = collectFacultyRatingsFromInputs();
+applyJustificationHighlights(ratings, {
+  co: selectNode.dataset.co,
+  po: selectNode.dataset.po
+});
+}
+
+async function loadMappingData(){
+
+const facultyNode = document.getElementById("facultyName");
+if(facultyNode){
+  facultyNode.textContent = localStorage.getItem("facultyName") || "Faculty";
+}
+
+const mappingId = localStorage.getItem("mappingId");
+let latestData = null;
+let storedRaw = null;
+let fetchedDuringLoad = false;
+
+try{
+  storedRaw = localStorage.getItem("mappingResult");
+
+  if(storedRaw){
+    latestData = normalizeLoadedMappingData(JSON.parse(storedRaw), mappingId);
+    applyLoadedMappingData(latestData);
+  }
+}catch(error){
+  console.warn("Unable to load saved mapping result.", error);
+}
+
+if(mappingId && !latestData){
+  try{
+    fetchedDuringLoad = true;
+    const res = await fetch(`${BASE_URL}/get-mapping/${mappingId}`);
+    if(res.ok){
+      latestData = normalizeLoadedMappingData(await res.json(), mappingId);
+      applyLoadedMappingData(latestData);
+    }
+  }catch(error){
+    console.warn("Unable to fetch latest mapping from backend, using saved result.", error);
+  }
+}
+
+if(!latestData){
+  alert("No mapping data found.");
+  return;
+}
+
+if(mappingId && !fetchedDuringLoad){
+  fetch(`${BASE_URL}/get-mapping/${mappingId}`)
+    .then(res => res.ok ? res.json() : null)
+    .then(data => {
+      const normalized = normalizeLoadedMappingData(data, mappingId);
+      if(!normalized){
+        return;
+      }
+
+      const serialized = JSON.stringify(normalized);
+      if(serialized !== storedRaw){
+        storedRaw = serialized;
+        applyLoadedMappingData(normalized);
+      }
+    })
+    .catch(error => {
+      console.warn("Background mapping refresh failed.", error);
+    });
+}
+}
+
+/* LOAD */
+document.addEventListener("DOMContentLoaded", loadMappingData);
+
+/* ========================= */
+function render(data){
+
+const tbody = document.getElementById("justificationBody");
+const matrix = document.getElementById("matrixTable");
+
+tbody.innerHTML="";
+matrix.innerHTML="";
+renderReportMeta(data);
+
+/* JUSTIFICATION */
+data.results.forEach(co=>{
+sortMappingsByPO(co.mapping).forEach(m=>{
+
+tbody.innerHTML+=`
+<tr data-co="${co.co}" data-po="${m.po_code}">
+<td class="col-co">
+  <div class="co-code">${co.co} (${formatBloomDisplay(co.bloom)})</div>
+  <div class="co-objective">${escapeHtml(co.objective || "Course outcome text not available.")}</div>
+</td>
+<td class="col-po">${m.po_code}</td>
+<td class="col-bloom">${formatBloomDisplay(co.bloom)}</td>
+<td class="col-level">${m.level}</td>
+<td class="col-confidence">${m.final_score}%</td>
+<td class="col-justification">
+  ${renderjustificationPicker(co.co, m)}
+</td>
+</tr>
+`;
+
+});
+});
+
+/* MATRIX */
+const poList = getPOList(data);
+
+let header="<tr><th>CO \\ PO</th>";
+poList.forEach(p=>header+=`<th>${p}</th>`);
+header+="</tr>";
+
+matrix.innerHTML=header;
+
+data.results.forEach(co=>{
+
+let row=`<tr><td>${co.co}</td>`;
+
+poList.forEach(po=>{
+
+const m = co.mapping.find(x=>x.po_code===po);
+
+if(m){
+row+=`
+<td>
+<div class="matrix-cell">
+<div>AI: ${m.level}</div>
+
+<select class="teacher-select"
+data-po="${po}"
+data-co="${co.co}"
+data-ai="${m.level}"
+onchange="handleMatrixSelectionChange(this)">
+<option value="">--</option>
+<option value="1" ${getStoredFacultyValue(co.co, po, m.level) === "1" ? "selected" : ""}>1</option>
+<option value="2" ${getStoredFacultyValue(co.co, po, m.level) === "2" ? "selected" : ""}>2</option>
+<option value="3" ${getStoredFacultyValue(co.co, po, m.level) === "3" ? "selected" : ""}>3</option>
+</select>
+
+</div>
+</td>
+`;
+}else{
+row+=`<td>-</td>`;
+}
+
+});
+
+row+="</tr>";
+matrix.innerHTML+=row;
+
+});
+
+applyJustificationHighlights(
+  Array.isArray(data?.faculty_ratings) ? data.faculty_ratings : []
+);
+
+}
+
+/* ========================= */
+/* SAVE + HIGHLIGHT */
+async function saveFacultyRatings(){
+
+let arr = collectFacultyRatingsFromInputs();
+applyJustificationHighlights(arr);
+
+localStorage.setItem("facultyData", JSON.stringify(arr));
+mappingData.faculty_ratings = arr;
+localStorage.setItem("mappingResult", JSON.stringify(mappingData));
+
+const mappingId = localStorage.getItem("mappingId") || mappingData?.id || mappingData?._id;
+
+if(!mappingId){
+  alert("Saved locally + highlighted.");
+  return;
+}
+
+try{
+  const res = await fetch(`${BASE_URL}/save-faculty`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: mappingId,
+      ratings: arr
+    })
+  });
+
+  if(!res.ok){
+    throw new Error("Failed to save faculty ratings");
+  }
+
+  alert("Saved + highlighted + synced to database.");
+}catch(error){
+  console.error(error);
+  alert("Saved locally, but database sync failed.");
+}
+}
+
+/* ========================= */
+/* GRAPH */
+function generateGraph(){
+
+const source = document.getElementById("dataSource").value;
+let poScores = {};
+
+/* AI */
+if(source==="ai"){
+mappingData.results.forEach(co=>{
+co.mapping.forEach(m=>{
+if(!poScores[m.po_code]) poScores[m.po_code]=0;
+poScores[m.po_code]+=m.level;
+});
+});
+}
+
+/* HYBRID */
+if(source==="faculty"){
+
+const stored = localStorage.getItem("facultyData");
+let facultyData = stored ? JSON.parse(stored) : [];
+
+if(facultyData.length===0){
+mappingData.results.forEach(co=>{
+co.mapping.forEach(m=>{
+if(!poScores[m.po_code]) poScores[m.po_code]=0;
+poScores[m.po_code]+=m.level;
+});
+});
+}else{
+facultyData.forEach(item=>{
+if(!poScores[item.po]) poScores[item.po]=0;
+poScores[item.po]+=item.faculty;
+});
+}
+}
+
+if(Object.keys(poScores).length===0){
+return;
+}
+
+const ctx=document.getElementById("chartCanvas").getContext("2d");
+
+if(window.myChart) window.myChart.destroy();
+
+window.myChart=new Chart(ctx,{
+type:"bar",
+data:{
+labels:Object.keys(poScores),
+datasets:[{
+label: source==="ai" ? "AI Mapping" : "Faculty Mapping",
+data:Object.values(poScores)
+}]
+}
+});
+
+}
+
+/* ========================= */
+function downloadPDF(){
+if(!mappingData){
+    alert("No mapping data found.");
+    return;
+}
+
+const poList = getPOList(mappingData);
+const meta = validateReportMetaForPdf(true);
+if(!meta){
+    return;
+}
+const courseOutcomes = Array.isArray(mappingData.course_outcomes)
+  ? mappingData.course_outcomes
+  : [];
+const customPos = Array.isArray(mappingData.custom_pos)
+  ? mappingData.custom_pos
+  : [];
+
+let graphImage = "";
+const canvas = document.getElementById("chartCanvas");
+if(canvas){
+    try{
+        graphImage = canvas.toDataURL("image/png", 1.0);
+    }catch(e){
+        graphImage = "";
+    }
+}
+
+let html = `
+    <style>
+        .report-print-page{
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 24px;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+        .page{
+            max-width: 1180px;
+            margin: auto;
+            background: #fff;
+            padding: 30px 34px;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(15,23,42,0.10);
+        }
+        .report-header{
+            text-align: center;
+            border-bottom: 2px solid #e5edf8;
+            padding-bottom: 18px;
+            margin-bottom: 22px;
+        }
+        .report-header img{
+            width: 100%;
+            max-width: 860px;
+            max-height: 125px;
+            object-fit: contain;
+            margin-bottom: 12px;
+        }
+        .report-header h1{
+            margin: 6px 0 8px;
+            font-size: 28px;
+            color: #0f172a;
+        }
+        .report-header p{
+            margin: 0;
+            color: #475569;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        .meta-grid{
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .meta-card{
+            border: 1px solid #dbe7f6;
+            border-radius: 14px;
+            background: #f8fbff;
+            padding: 14px 16px;
+        }
+        .meta-card.wide{
+            grid-column: span 3;
+        }
+        .meta-label{
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+        }
+        .meta-value{
+            color: #142033;
+            font-size: 15px;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+        .meta-value ol{
+            margin: 0;
+            padding-left: 18px;
+        }
+        h2{
+            margin-top: 28px;
+            margin-bottom: 14px;
+            color: #0d1b2a;
+            font-size: 22px;
+        }
+        h3{
+            margin-top: 26px;
+            margin-bottom: 6px;
+            color: #1565C0;
+            font-size: 21px;
+        }
+        .co-subtitle{
+            margin: 0 0 12px;
+            color: #334155;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+        table{
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        th, td{
+            border: 1px solid #cfd8e3;
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+            line-height: 1.6;
+        }
+        th{
+            background: #0d1b2a;
+            color: white;
+        }
+        .matrix-table th:first-child,
+        .matrix-table td:first-child{
+            background: #0d1b2a;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .graph-box{
+            text-align: center;
+            margin-top: 20px;
+        }
+        .graph-box img{
+            max-width: 100%;
+            border: 1px solid #dbe4ef;
+            border-radius: 12px;
+        }
+        @media print{
+            .page{
+                box-shadow: none;
+                border-radius: 0;
+                padding: 14px 18px;
+                max-width: none;
+            }
+        }
+    </style>
+    <div class="report-print-page">
+    <div class="page">
+        <div class="report-header">
+            <img src="${meta.logo_src}" alt="Watumull Banner Logo">
+            <h1>CO-PO Mapping Report</h1>
+            <p>Faculty login, selected subject, entered course outcomes, and generated mapping details are saved with this report.</p>
+        </div>
+
+        <div class="meta-grid">
+            <div class="meta-card">
+                <span class="meta-label">Faculty Login</span>
+                <div class="meta-value">${escapeHtml(meta.faculty_name)}</div>
+            </div>
+            <div class="meta-card">
+                <span class="meta-label">Subject</span>
+                <div class="meta-value">${escapeHtml(meta.subject)}</div>
+            </div>
+            <div class="meta-card">
+                <span class="meta-label">Semester</span>
+                <div class="meta-value">${escapeHtml(meta.semester)}</div>
+            </div>
+            <div class="meta-card">
+                <span class="meta-label">Course Name</span>
+                <div class="meta-value">${escapeHtml(meta.course_name)}</div>
+            </div>
+            <div class="meta-card">
+                <span class="meta-label">Course Code</span>
+                <div class="meta-value">${escapeHtml(meta.course_code)}</div>
+            </div>
+            <div class="meta-card">
+                <span class="meta-label">Academic Year</span>
+                <div class="meta-value">${escapeHtml(meta.academic_year || "-")}</div>
+            </div>
+            ${
+              meta.datetime_status === "accepted"
+                ? `
+            <div class="meta-card">
+                <span class="meta-label">Report Date & Time</span>
+                <div class="meta-value">${escapeHtml(meta.report_datetime_display)}</div>
+            </div>
+            <div class="meta-card">
+                <span class="meta-label">Teacher Decision</span>
+                <div class="meta-value">Accepted</div>
+            </div>
+            `
+                : ""
+            }
+            <div class="meta-card wide">
+                <span class="meta-label">Entered Course Outcomes</span>
+                <div class="meta-value">
+                    ${
+                      courseOutcomes.length
+                        ? `<ol>${courseOutcomes.map(coText => `<li>${escapeHtml(coText)}</li>`).join("")}</ol>`
+                        : escapeHtml(mappingData.course_outcomes_input_raw || "-")
+                    }
+                </div>
+            </div>
+            ${
+              customPos.length
+                ? `
+            <div class="meta-card wide">
+                <span class="meta-label">Custom POs Entered</span>
+                <div class="meta-value">
+                    <ol>${customPos.map(poText => `<li>${escapeHtml(poText)}</li>`).join("")}</ol>
+                </div>
+            </div>
+            `
+                : ""
+            }
+        </div>
+
+        <h2>1. CO-PO Mapping Justification</h2>
+`;
+
+mappingData.results.forEach(co => {
+    html += `
+        <h3>${escapeHtml(co.co)} (${escapeHtml(formatBloomDisplay(co.bloom))})</h3>
+        <p class="co-subtitle">${escapeHtml(co.objective || "Course outcome text not available.")}</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>PO</th>
+                    <th>AI Level</th>
+                    <th>Bloom</th>
+                    <th>Confidence</th>
+                    <th>Justification</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    sortMappingsByPO(co.mapping).forEach(m => {
+        const selectedjustification = getSelectedjustification(m).text;
+        html += `
+            <tr>
+                <td>${escapeHtml(m.po_code)}</td>
+                <td>${escapeHtml(m.level)}</td>
+                <td>${escapeHtml(formatBloomDisplay(co.bloom))}</td>
+                <td>${escapeHtml(`${m.final_score}%`)}</td>
+                <td>${escapeHtml(selectedjustification)}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+    `;
+});
+
+html += `
+        <h2>2. CO-PO Mapping Matrix</h2>
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th>CO \\ PO</th>
+`;
+
+poList.forEach(po => {
+    html += `<th>${escapeHtml(po)}</th>`;
+});
+
+html += `</tr></thead><tbody>`;
+
+mappingData.results.forEach(co => {
+    html += `<tr><td>${escapeHtml(co.co)}</td>`;
+
+    poList.forEach(po => {
+        let value = "-";
+        const found = co.mapping.find(m => m.po_code === po);
+        if(found){
+            value = found.level;
+        }
+        html += `<td style="text-align:center;">${escapeHtml(value)}</td>`;
+    });
+
+    html += `</tr>`;
+});
+
+html += `
+            </tbody>
+        </table>
+
+        <h2>3. CO-PO Analytics Graph</h2>
+        <div class="graph-box">
+`;
+
+if(graphImage){
+    html += `<img src="${graphImage}" alt="CO-PO Graph">`;
+} else {
+    html += `<p>Graph not generated yet.</p>`;
+}
+
+html += `
+        </div>
+    </div>
+`;
+openReportPrintPreview(html);
+setTimeout(() => {
+    triggerReportPrint();
+}, 140);
+}
+
+function openReportPrintPreview(html){
+const overlay = document.getElementById("reportPdfPreviewOverlay");
+const container = document.getElementById("reportPdfPreviewContent");
+
+if(!overlay || !container){
+    return;
+}
+
+container.innerHTML = html;
+overlay.classList.remove("hidden");
+}
+
+function closeReportPrintPreview(){
+document.body.classList.remove("print-report-mode");
+document.getElementById("reportPdfPreviewOverlay")?.classList.add("hidden");
+}
+
+function triggerReportPrint(){
+const overlay = document.getElementById("reportPdfPreviewOverlay");
+if(!overlay || overlay.classList.contains("hidden")){
+    return;
+}
+document.body.classList.add("print-report-mode");
+window.print();
+}
+
+window.addEventListener("afterprint", () => {
+document.body.classList.remove("print-report-mode");
+});
+
+/* ========================= */
+function logout(){
+localStorage.clear();
+location.href="login.html";
+}
+
+</script>
+<script src="page-navigation.js"></script>
+
+</body>
+</html>

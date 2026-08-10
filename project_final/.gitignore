@@ -1,0 +1,43 @@
+# Node dependencies
+node_modules/
+
+# Build and build outputs
+build/
+dist/
+
+# Python virtual environments & caches
+venv/
+venv*/
+.venv/
+__pycache__/
+*.pyc
+backend/venv311/
+
+# Local configuration / Environment variables
+.env
+.env.local
+.env.*
+!.env.example
+
+# Uploads directory - ignore user-uploaded files but keep folder
+uploads/*.pdf
+uploads/*.docx
+uploads/*.xlsx
+backend/uploads/*.pdf
+backend/uploads/*.docx
+backend/uploads/*.xlsx
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
