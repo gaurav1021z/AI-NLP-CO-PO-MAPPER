@@ -144,6 +144,30 @@ The frontend runs on `http://localhost:3000` and expects the backend at `http://
 | Backend | [Hugging Face Spaces](https://huggingface.co/spaces) (Docker SDK — handles the TensorFlow/BERT/EasyOCR memory footprint better than most free tiers) |
 | Database | [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) free M0 cluster |
 
+👥 Project Team
+
+This project was developed as a group project.
+
+Add your team members here:
+
+Member 1 — Gaurav Anil Zambare
+Member 2 — Pankaj Kamlesh Gehlot
+Member 3 — Hemanshu Sushilkumar Raut
+Member 4 — Priyanka Pravin Solse
+## 🎥 Project Demonstration
+
+A complete demonstration of the AI-Based NLP Framework for Automatic CO–PO Mapping is available below.
+
+[▶️ Watch the Project Demo on YouTube](https://youtu.be/TkRLPjiqzr8)
+
+
+## 🚀 Live Demo
+
+[🌐 Open Live Application](https://ai-nlp-co-po-mapper-frontend.onrender.com)
+
+## 🎥 Project Demo
+
+[▶️ Watch Project Demo on YouTube](https://youtu.be/TkRLPjiqzr8)
 ## 📝 License & Academic Policy
 
 ### License
