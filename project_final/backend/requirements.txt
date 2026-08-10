@@ -17,4 +17,4 @@ joblib
 xgboost
 bcrypt
 python-dotenv
-
+openpyxl
