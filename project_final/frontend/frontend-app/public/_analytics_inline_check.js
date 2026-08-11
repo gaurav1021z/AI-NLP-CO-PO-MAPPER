@@ -1,7 +1,7 @@
 
 
 const BASE_URL =
-  window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "http://127.0.0.1:9000";
+  window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "https://ai-nlp-co-po-mapper.onrender.com";
 
 const YEAR_SEM_MAP = {
   FE: [1, 2],

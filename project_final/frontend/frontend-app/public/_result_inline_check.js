@@ -3,7 +3,7 @@
 /* ========================= */
 let mappingData = null;
 const BASE_URL =
-window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "http://127.0.0.1:9000";
+window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "https://ai-nlp-co-po-mapper.onrender.com";
 const REPORT_LOGO_SRC = new URL("watumull-banner.jpg", window.location.href).href;
 const REPORT_META_STORAGE_KEY = "reportMetaCustomization";
 const ACADEMIC_YEAR_OPTIONS = ["1st Half 2025-2026", "2nd Half 2025-26", "Winter 2025-2026", "Summer2025-2026"];

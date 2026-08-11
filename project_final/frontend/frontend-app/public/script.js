@@ -2,7 +2,7 @@
    GLOBAL VARIABLES
 ========================================= */
 const BASE_URL =
-  window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "http://127.0.0.1:9000";
+  window.API_BASE_URL || localStorage.getItem("apiBaseUrl") || "https://ai-nlp-co-po-mapper.onrender.com";
 let poMode = "AICTE";
 let courseEntryMode = "existing";
 let savedDashboardSubjects = [];
