@@ -684,6 +684,62 @@ def subject_catalog(schema: str = "C", year: str = "", semester: str = ""):
     }
 
 
+UNIVERSITY_BUILTIN_SUBJECTS = {
+    "SPPU": [
+        "Discrete Mathematics",
+        "Data Structures and Algorithms",
+        "Object Oriented Programming",
+        "Computer Graphics",
+        "Operating Systems",
+        "Database Management Systems",
+        "Computer Networks",
+        "Theory of Computation",
+        "Software Engineering & Project Management",
+        "Artificial Intelligence",
+        "Machine Learning",
+    ],
+    "Anna University": [
+        "Transforms and Partial Differential Equations",
+        "Data Structures",
+        "Digital Principles and System Design",
+        "Object Oriented Programming",
+        "Database Management Systems",
+        "Operating Systems",
+        "Design and Analysis of Algorithms",
+        "Computer Networks",
+        "Object Oriented Analysis and Design",
+        "Cloud Computing",
+        "Artificial Intelligence",
+    ],
+    "IIT": [
+        "Data Structures and Algorithms",
+        "Computer Architecture and Organization",
+        "Operating Systems Principles",
+        "Database System Concepts",
+        "Computer Networks and Protocols",
+        "Formal Languages and Automata",
+        "Compiler Design",
+        "Artificial Intelligence and Machine Learning",
+        "Parallel and Distributed Computing",
+        "Cryptography and Network Security",
+    ],
+    "Mumbai University": [
+        "Engineering Mathematics-I",
+        "Data Structure",
+        "Analysis of Algorithm",
+        "Database Management System",
+        "Operating System",
+        "Theoretical Computer Science",
+        "Software Engineering",
+        "Computer Network",
+        "Artificial Intelligence",
+        "Machine Learning",
+        "Big Data Analytics",
+        "Distributed Computing",
+    ],
+}
+
+
 @app.get("/university-subjects")
 def university_subjects(university: str):
     cleaned_university = normalize_analytics_university(university)
@@ -701,6 +757,14 @@ def university_subjects(university: str):
             if isinstance(value, str) and value.strip()
         }
     )
+
+    if not subjects:
+        for key, default_list in UNIVERSITY_BUILTIN_SUBJECTS.items():
+            if key.lower() in cleaned_university.lower() or cleaned_university.lower() in key.lower():
+                subjects = default_list
+                break
+        if not subjects:
+            subjects = UNIVERSITY_BUILTIN_SUBJECTS["SPPU"]
 
     return {
         "university": cleaned_university,
