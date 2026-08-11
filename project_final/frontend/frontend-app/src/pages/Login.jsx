@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 
-const BASE_URL =
-  window.API_BASE_URL ||
-  localStorage.getItem("apiBaseUrl") ||
-  process.env.REACT_APP_API_BASE_URL ||
-  "http://127.0.0.1:9000";
+const BASE_URL = "https://ai-nlp-co-po-mapper.onrender.com";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -38,7 +34,7 @@ function Login() {
         localStorage.setItem("facultyName", data.name || "");
         localStorage.setItem("facultyEmail", email);
 
-        window.location.href = "/dashboard";
+        window.location.href = "/dashboard.html";
       } else {
         alert(data.msg || "Login failed");
       }

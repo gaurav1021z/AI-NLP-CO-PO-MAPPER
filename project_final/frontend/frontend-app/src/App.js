@@ -1,6 +1,7 @@
+@'
+import React from "react";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Home from "./pages/home";
 
 function App() {
   const path = window.location.pathname;
@@ -13,11 +14,11 @@ function App() {
     return <Signup />;
   }
 
-  if (path === "/dashboard") {
-    return <Home />;
-  }
-
-  return <Login />;
+  // Old testing dashboard route removed.
+  // Actual dashboard is dashboard.html.
+  window.location.replace("/login");
+  return null;
 }
 
 export default App;
+'@ | Set-Content .\frontend\frontend-app\src\App.js
