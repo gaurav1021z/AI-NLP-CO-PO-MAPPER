@@ -1,4 +1,5 @@
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Home from "./pages/home";
 
 function App() {
@@ -8,14 +9,12 @@ function App() {
     return <Login />;
   }
 
-  if (path === "/dashboard") {
-    return <Home />;
+  if (path === "/signup" || path === "/signup.html") {
+    return <Signup />;
   }
 
-  // Signup is currently an HTML page inside public/
-  if (path === "/signup" || path === "/signup.html") {
-    window.location.replace("/signup.html");
-    return null;
+  if (path === "/dashboard") {
+    return <Home />;
   }
 
   return <Login />;
