@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 
-const BASE_URL = "https://ai-nlp-co-po-mapper.onrender.com";
+const BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  window.API_BASE_URL ||
+  localStorage.getItem("apiBaseUrl") ||
+  "https://ai-nlp-co-po-mapper.onrender.com";
 
 function Login() {
   const [email, setEmail] = useState("");
