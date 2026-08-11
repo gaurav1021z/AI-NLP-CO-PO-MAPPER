@@ -137,6 +137,111 @@ def get_subject_collection(schema):
     return db["c_scheme"] if normalized_schema == "C" else db["nep_collection"]
 
 
+BUILTIN_SUBJECTS_DATA = {
+    "C": {
+        1: [
+            ("FEC101", "Engineering Mathematics-I"),
+            ("FEC102", "Engineering Physics-I"),
+            ("FEC103", "Engineering Chemistry-I"),
+            ("FEC104", "Engineering Mechanics"),
+            ("FEC105", "Basic Electrical Engineering"),
+        ],
+        2: [
+            ("FEC201", "Engineering Mathematics-II"),
+            ("FEC202", "Engineering Physics-II"),
+            ("FEC203", "Engineering Chemistry-II"),
+            ("FEC204", "Engineering Graphics"),
+            ("FEC205", "C Programming"),
+            ("FEC206", "Professional Communication and Ethics-I"),
+        ],
+        3: [
+            ("CSC301", "Engineering Mathematics III"),
+            ("CSC302", "Discrete Structures"),
+            ("CSC303", "Data Structure"),
+            ("CSC304", "Digital Logic"),
+            ("CSC305", "Computer Graphics"),
+        ],
+        4: [
+            ("CSC401", "Engineering Mathematics IV"),
+            ("CSC402", "Analysis of Algorithm"),
+            ("CSC403", "Database Management System"),
+            ("CSC404", "Operating System"),
+            ("CSC405", "Microprocessor"),
+        ],
+        5: [
+            ("CSC501", "Theoretical Computer Science"),
+            ("CSC502", "Software Engineering"),
+            ("CSC503", "Computer Network"),
+            ("CSC504", "Data Warehousing & Mining"),
+            ("CSDLO5011", "Probabilistic Graphical Models"),
+            ("CSDLO5012", "Internet Programming"),
+            ("CSDLO5013", "Advance Database Management System"),
+        ],
+        6: [
+            ("CSC601", "System Programming & Compiler Construction"),
+            ("CSC602", "Cryptography & System Security"),
+            ("CSC603", "Mobile Computing"),
+            ("CSC604", "Artificial Intelligence"),
+            ("CSDLO6011", "Internet of Things"),
+            ("CSDLO6012", "Digital Signal & Image Processing"),
+            ("CSDLO6013", "Quantitative Analysis"),
+        ],
+        7: [
+            ("CSC701", "Machine Learning"),
+            ("CSC702", "Big Data Analytics"),
+            ("CSDC7011", "Machine Vision"),
+            ("CSDC7012", "Quantum Computing"),
+            ("CSDC7013", "Natural Language Processing"),
+            ("SDC7021", "Augmented and Virtual Reality"),
+            ("CSDC7022", "Block Chain"),
+            ("CSDC7023", "Information Retrieval"),
+            ("ILO7011", "Product Lifecycle Management"),
+            ("ILO7016", "Cyber Security and Laws"),
+        ],
+        8: [
+            ("CSC801", "Distributed Computing"),
+            ("CSDC8011", "Deep Learning"),
+            ("CSDC8012", "Digital Forensic"),
+            ("CSDC8013", "Applied Data Science"),
+            ("CSDC8021", "Optimization in Machine Learning"),
+            ("CSDC8022", "High Performance Computing"),
+            ("CSDC8023", "Social Media Analytics"),
+            ("ILO8021", "Project Management"),
+            ("ILO8026", "Research Methodology"),
+        ],
+    },
+    "NEP": {
+        1: [
+            ("BSC101", "Applied Mathematics-I"),
+            ("BSC102", "Applied Physics-I"),
+            ("BSC103", "Applied Chemistry-I"),
+            ("ESC101", "Engineering Mechanics"),
+            ("ESC102", "Basic Electrical Engineering"),
+        ],
+        2: [
+            ("BSC201", "Applied Mathematics-II"),
+            ("BSC202", "Applied Physics-II"),
+            ("BSC203", "Applied Chemistry-II"),
+            ("ESC201", "Engineering Graphics"),
+            ("ESC202", "C Programming"),
+            ("HSMC201", "Professional Communication"),
+        ],
+        3: [
+            ("2113111", "Mathematics for Computer Engineering"),
+            ("2113112", "Discrete Structures"),
+            ("2113113", "Data Structures"),
+            ("2113114", "Digital Logic"),
+        ],
+        4: [
+            ("2113121", "Formal Languages & Automata Theory"),
+            ("2113122", "Operating Systems"),
+            ("2113123", "Database Management Systems"),
+            ("2113124", "Computer Networks"),
+        ],
+    },
+}
+
+
 def load_subject_catalog(schema, year=None, semester=None):
     collection = get_subject_collection(schema)
     query = {}
@@ -178,6 +283,32 @@ def load_subject_catalog(schema, year=None, semester=None):
             "year": doc.get("year"),
             "label": f"{code} {name}",
         }
+
+    if not unique:
+        norm_schema = normalize_schema_value(schema)
+        sem_num = None
+        if semester not in (None, ""):
+            try:
+                sem_num = int(semester)
+            except (TypeError, ValueError):
+                pass
+
+        schema_data = BUILTIN_SUBJECTS_DATA.get(norm_schema, {})
+        if sem_num and sem_num in schema_data:
+            target_sems = [sem_num]
+        else:
+            target_sems = list(schema_data.keys())
+
+        for s_num in target_sems:
+            for code, name in schema_data.get(s_num, []):
+                key = (code, name, s_num, year)
+                unique[key] = {
+                    "subject_code": code,
+                    "subject_name": name,
+                    "semester": s_num,
+                    "year": year,
+                    "label": f"{code} {name}",
+                }
 
     return sorted(
         unique.values(),
