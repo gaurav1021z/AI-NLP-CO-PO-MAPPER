@@ -84,7 +84,7 @@ function Login() {
 
         <div style={styles.footer}>
           New here?{" "}
-          <a href="/signup.html" style={styles.link}>
+          <a href="/signup" style={styles.link}>
             Create Account
           </a>
         </div>
