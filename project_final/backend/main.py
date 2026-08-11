@@ -20,16 +20,20 @@ from semantic_mapper import map_course_outcomes_to_pos, map_texts_to_candidates
 # =========================
 # FASTAPI APP
 # =========================
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://ai-nlp-co-po-mapper-frontend.onrender.com",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # =========================
 # MONGODB CONNECTION
