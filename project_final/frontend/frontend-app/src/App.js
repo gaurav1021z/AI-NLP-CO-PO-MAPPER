@@ -12,6 +12,12 @@ function App() {
     return <Home />;
   }
 
+  // Signup is currently an HTML page inside public/
+  if (path === "/signup" || path === "/signup.html") {
+    window.location.replace("/signup.html");
+    return null;
+  }
+
   return <Login />;
 }
 
