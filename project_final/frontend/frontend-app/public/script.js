@@ -493,6 +493,18 @@ async function loadDashboardSubjects(){
 
   try{
     builtInSubjects = await fetchSubjectCatalog(schema, year, semester);
+    if (!builtInSubjects || builtInSubjects.length === 0) {
+      builtInSubjects = getBuiltInSubjects(schema, year, semester).map(subjectLabel => {
+        const details = parseSubjectDetails(subjectLabel, semester);
+        return {
+          subject_code: details.course_code,
+          subject_name: details.subject,
+          semester: Number(semester),
+          year: year,
+          label: subjectLabel
+        };
+      });
+    }
   }catch(error){
     console.error("Unable to load official subject catalog, using fallback list.", error);
     builtInSubjects = getBuiltInSubjects(schema, year, semester).map(subjectLabel => {

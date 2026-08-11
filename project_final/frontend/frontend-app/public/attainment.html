@@ -67,6 +67,11 @@ tr:nth-child(even) td{background:#f8fafc;}
 </style>
 </head>
 <body>
+<script>
+  if (localStorage.getItem("loggedIn") !== "true") {
+    window.location.href = "/";
+  }
+</script>
 
 <div class="layout">
 

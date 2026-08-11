@@ -4,16 +4,32 @@ import Signup from "./pages/Signup";
 
 function App() {
   const path = window.location.pathname;
+  const isLogged = localStorage.getItem("loggedIn") === "true";
 
-  if (path === "/login" || path === "/") {
+  if (path === "/login" || path === "/" || path === "/login.html") {
+    if (isLogged) {
+      window.location.href = "/dashboard.html";
+      return null;
+    }
     return <Login />;
   }
 
-  if (path === "/signup") {
+  if (path === "/signup" || path === "/signup.html") {
     return <Signup />;
   }
 
-  // Existing HTML/JS application handles dashboard and other pages
+  // Security route guard for protected dashboard & html pages
+  if (!isLogged) {
+    window.location.href = "/";
+    return null;
+  }
+
+  // If already on a specific .html page, let browser load it
+  if (path.endsWith(".html")) {
+    return null;
+  }
+
+  // Default redirect to dashboard for logged in users
   window.location.href = "/dashboard.html";
   return null;
 }
